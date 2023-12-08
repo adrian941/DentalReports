@@ -167,7 +167,9 @@ namespace DentalReports.Server.Areas.Identity.Pages.Account
             string HostEmail = _configuration.GetValue<string>("EmailSender:Host") ;
             string HostPassword = _configuration.GetValue<string>("EmailSender:Password") ;
             int SmtpPort = _configuration.GetValue<int>("EmailSender:Port") ; 
-            
+            //TODO : Delete logs
+            Console.WriteLine(HostEmail);
+            Console.WriteLine(SmtpPort);
             try
             {
 
@@ -195,8 +197,9 @@ namespace DentalReports.Server.Areas.Identity.Pages.Account
 
 
             }
-            catch (Exception )
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
 
