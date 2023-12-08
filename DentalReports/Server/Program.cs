@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,16 +15,31 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
-    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
+        {
+            options.IdentityResources["openid"].UserClaims.Add("role");
+            options.ApiResources.Single().UserClaims.Add("role");
+        }
+    );
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
+builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueLengthLimit = 1024 * 1024 * 100; // TODO : Global 20MB limit per request
+    options.MultipartBodyLengthLimit = 1024 * 1024 * 100; // TODO : Global 100MB limit per request
+});
+
 
 var app = builder.Build();
 

@@ -5,4 +5,31 @@
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
- 
+ <br/>
+<AuthorizeView  >
+    <Authorized>
+        @if (context.User.IsInRole(RolesMegagen.Admin)== true)
+        {
+            <p>Esti ADMIN</p>
+        }
+        else
+        {
+            <p>Esti logat dar nu esti Admin</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+           Nu  Esti Logat
+    </NotAuthorized>
+
+
+</AuthorizeView>
+ <br/>
+
+<AuthorizeView Roles="@RolesMegagen.Admin">
+    <Authorized>
+         Al doilea mod: ESTI ADMIN
+    </Authorized>
+    <NotAuthorized>
+         Al doilea mod: NUUUU ESTI ADMIN
+    </NotAuthorized>
+</AuthorizeView>
