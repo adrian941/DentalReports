@@ -84,8 +84,27 @@ namespace DentalReports.Server.Areas.Identity.Pages.Account
             /// </summary>
             [Required]
             [EmailAddress]
+            [StringLength(140, ErrorMessage = "Maximum length = 140 characters")]
             [Display(Name = "Email")]
             public string Email { get; set; }
+
+
+            [Required]
+            [StringLength(140, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
+            [DataType(DataType.Text)]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [StringLength(140, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
+            [DataType(DataType.Text)]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
+
+
+
+
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -124,6 +143,11 @@ namespace DentalReports.Server.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
+
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -140,7 +164,9 @@ namespace DentalReports.Server.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                         $"Hello {user.FirstName},<br /><br />" +
+                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.<br /><br />" +
+                         $"Kindly,<br />Megagen Bucharest Team");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

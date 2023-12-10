@@ -55,7 +55,7 @@ public class DbInitializerController : ControllerBase
     private async Task SetAdminAsync()
     {
         string adminEmail = _config.GetValue<string>("AdminUser")!;
-        ApplicationUser adminUser = await _userManager.FindByEmailAsync(adminEmail);
+        ApplicationUser adminUser = (await _userManager.FindByEmailAsync(adminEmail))!;
 
         if (adminUser != null)
         {
