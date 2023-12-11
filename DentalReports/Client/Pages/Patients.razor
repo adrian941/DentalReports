@@ -1,16 +1,59 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject NavigationManager _navigationManager
+ 
 
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Patients</PageTitle>
+<head>
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/patients.css">
+</head>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
- <br/> 
+<div id="patients-page">
+
+    <div id="header">
+        <div class="logo-container">
+            <button class="logo-button"></button>
+            <span class="logo-text">Megagen</span>
+        </div>
+        
+        <div class="logout-container">
+            <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
+            <span class="logout-text" @onclick="BeginSignOut">Log out</span>
+        </div>
+    </div>
+
+
+
+
+
+</div>
+ 
+
+
+
+
+
+
+
+
 
 @code {
+    protected void NavigateToDoctors()
+    {
+
+        _navigationManager.NavigateTo("doctors");
+    }
+
+    protected void BeginSignOut()
+    {
+
+        _navigationManager.NavigateToLogout("authentication/logout");
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
@@ -19,7 +62,10 @@ Welcome to your new app.
         if (!user.Identity!.IsAuthenticated)
         {
             _navigationManager.NavigateTo("/Identity/Account/Login", true);
-
+        }
+        else
+        {
+            //TODO: Load Page
         }
     }
 }

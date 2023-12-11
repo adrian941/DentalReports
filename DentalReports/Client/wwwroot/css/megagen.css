@@ -1,0 +1,175 @@
+﻿html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+ 
+::-webkit-scrollbar {
+    width: 0;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+ 
+body {
+    -ms-overflow-style: none;
+}
+
+/*Butoane si Slide*/
+
+.megagen-upper-btns-container {
+    margin-top: 5px;
+    z-index: 9999;
+ 
+}
+    .megagen-upper-btns-container.fixed {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+.megagen-upper-btn {
+
+    width: 1.9em;
+    height: 2.3em;
+    border-radius: 51%;
+    background: #2F2648;
+    border: none;
+    margin: 0 8px; /* Spațiere între butoane */
+    padding: 0;
+    cursor: pointer;
+    border: 1px solid #fff;
+    box-shadow: 0px 0px 68px -28px rgba(0,0,0,1);
+    color: #fff;
+}
+
+
+
+
+.stl-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    border: none;
+    font-size: 10px;
+    width: 70px;
+    border-radius: 5px;
+    background-image: url('/images/STL-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
+    .stl-button.button-black {
+        background-image: url('/images/STL-black.png');
+    }
+
+.pdf-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    border: none;
+    font-size: 10px;
+    width: 70px;
+    border-radius: 5px;
+    background-image: url('/images/PDF-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
+
+.video-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    border: none;
+    font-size: 10px;
+    width: 70px;
+    border-radius: 5px;
+    background-image: url('/images/MP4-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
+    .video-button.button-black {
+        background-image: url('/images/MP4-black.png');
+    }
+
+.menu-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    border: none;
+    font-size: 10px;
+    width: 70px;
+    border-radius: 5px;
+    background-image: url('/images/MENU-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
+    .menu-button.button-black {
+ 
+        background-image: url('/images/MENU-black.png');
+ 
+    }
+
+.refresh-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    border: none;
+    font-size: 10px;
+    width: 70px;
+    border-radius: 5px;
+    background-image: url('/images/REFRESH-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
+
+.search-button {
+    background-color:transparent;
+    color: white;
+    height: 30px;
+    border: none;
+    font-size: 10px;
+    width: 70px;
+    border-radius: 5px;
+    background-image: url('/images/SEARCH-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
+
+.logo-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    width: 30px;
+    border: none;
+    font-size: 10px;
+    border-radius: 5px;
+    background-image: url('/images/LOGO.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+    margin: 10px;
+    margin-left: 15px;
+}
+
+.button-35w {
+    width: 35px;
+}
+.app-color {
+    background-color: #20204D;
+}
