@@ -1,10 +1,10 @@
 {
-  "name": "DentalReports",
-  "short_name": "DentalReports",
+  "name": "Dental Reports",
+  "short_name": "Dental Reports",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "theme_color": "#20204D",
   "prefer_related_applications": false,
   "icons": [
     {

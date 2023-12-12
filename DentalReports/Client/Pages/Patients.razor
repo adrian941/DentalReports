@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject NavigationManager _navigationManager
+@inject IJSRuntime _jsRuntime
+
  
 
 
@@ -11,41 +13,90 @@
     <link rel="stylesheet" href="css/patients.css">
 </head>
 
+ 
 
 <div id="patients-page">
-
+    
     <div id="header">
+        
         <div class="logo-container">
             <button class="logo-button"></button>
             <span class="logo-text">Megagen</span>
         </div>
-        
-        <div class="logout-container">
-            <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
-            <span class="logout-text" @onclick="BeginSignOut">Log out</span>
-        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="logout-container">
+                    <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
+                    <span class="logout-text" @onclick="BeginSignOut">Log out</span>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="logout-container">
+                    <span class="logout-text" @onclick="NavigateToLogin">Log In</span>
+                    <span class="logout-text" @onclick="NavigateToRegister">Register</span>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+      
+ 
     </div>
 
 
+
+
+    <AuthorizeView>
+        <Authorized>
+            <div style="margin:15px;">
+                <h3> You are authenticated! </h3>
+                <h5> Congratulations, you are logged in. </h5>
+                <h5> Here it will be created a new site for Megagen1 </h5>
+
+            </div>
+        
+        </Authorized>
+        <NotAuthorized>
+
+            <div style="margin:15px;">
+                <h3> You are not authenticated! </h3>
+                <h5> Please <a href="/authentication/login">Login </a> or <a href="/authentication/register"> Register </a> !</h5>
+
+            </div>
+          
+        </NotAuthorized>
+    </AuthorizeView>
 
 
 
 </div>
  
 
-
-
-
+ 
 
 
 
 
 
 @code {
+ 
+
+
+
+
     protected void NavigateToDoctors()
     {
 
         _navigationManager.NavigateTo("doctors");
+    }
+    protected void NavigateToLogin()
+    {
+
+        _navigationManager.NavigateToLogin("authentication/login");
+    }
+    protected void NavigateToRegister()
+    {
+
+        _navigationManager.NavigateTo("authentication/register");
     }
 
     protected void BeginSignOut()
@@ -58,14 +109,6 @@
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-
-        if (!user.Identity!.IsAuthenticated)
-        {
-            _navigationManager.NavigateTo("/Identity/Account/Login", true);
-        }
-        else
-        {
-            //TODO: Load Page
-        }
+        
     }
 }

@@ -3,7 +3,16 @@
     padding: 0;
     overflow: hidden;
 }
- 
+
+h3, h5 {
+    font-family: --bs-body-font-family!important;
+}
+a, p {
+    text-decoration: none!important;
+    font-family: --bs-body-font-family!important;
+}
+
+
 ::-webkit-scrollbar {
     width: 0;
 }
