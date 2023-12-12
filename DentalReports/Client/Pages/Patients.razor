@@ -24,21 +24,30 @@
             <span class="logo-text">Megagen</span>
         </div>
 
-        <AuthorizeView>
-            <Authorized>
-                <div class="logout-container">
+
+        <div class="logout-container">
+            <AuthorizeView Roles="@($"{RolesMegagen.Admin}, {RolesMegagen.Technician}")">
+                <Authorized>
                     <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
                     <span class="logout-text" @onclick="BeginSignOut">Log out</span>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="logout-container">
-                    <span class="logout-text" @onclick="NavigateToLogin">Log In</span>
-                    <span class="logout-text" @onclick="NavigateToRegister">Register</span>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-      
+                </Authorized>
+                <NotAuthorized>
+                    @if (context.User.Identity.IsAuthenticated)
+                    {
+                        <span class="logout-text" @onclick="BeginSignOut">Log out</span>
+                    }
+                    else
+                    {
+                        <span class="logout-text" @onclick="NavigateToLogin">Log In</span>
+                        <span class="logout-text" @onclick="NavigateToRegister">Register</span>
+                    }
+
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+
+
  
     </div>
 

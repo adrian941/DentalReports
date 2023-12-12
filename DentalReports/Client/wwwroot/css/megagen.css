@@ -8,7 +8,7 @@ h3, h5 {
     font-family: --bs-body-font-family!important;
 }
 a, p {
-    text-decoration: none!important;
+    text-decoration: none!important; 
     font-family: --bs-body-font-family!important;
 }
 

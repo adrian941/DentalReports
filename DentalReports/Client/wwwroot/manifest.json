@@ -3,7 +3,7 @@
   "short_name": "Dental Reports",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#20204D",
   "theme_color": "#20204D",
   "prefer_related_applications": false,
   "icons": [
