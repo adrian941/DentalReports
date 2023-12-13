@@ -1,13 +1,48 @@
 ﻿@page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager navigationManager
+<head>
+    <link rel="stylesheet" href="css/patients.css">
+</head>
+<style>
+    h3{
+        margin: 15px;
+
+    }
+</style>
 
 
-<RemoteAuthenticatorView Action="@Action" >
-    <LogOutSucceeded>
-        @InvokeAsync(() => navigationManager.NavigateTo("/Identity/Account/Login",true))
-    </LogOutSucceeded>
-</RemoteAuthenticatorView>
+    <RemoteAuthenticatorView Action="@Action">
+
+        <LogOutSucceeded>
+            @InvokeAsync(() => navigationManager.NavigateTo("/Identity/Account/Login", true))
+        </LogOutSucceeded>
+        <LoggingIn>
+            <h3>Logging In</h3>
+        </LoggingIn>
+        <Registering>
+            <h3>Registering</h3>
+        </Registering>
+        <UserProfile>
+            <h3>UserProfile is loaded....</h3>
+        </UserProfile>
+        <CompletingLoggingIn>
+            <h3>Completing Logging In</h3>
+        </CompletingLoggingIn>
+        <LogInFailed>
+            <h3>Login failed. Reason: @context</h3>
+        </LogInFailed>
+        <LogOut>
+            <h3>Logout from the application</h3>
+        </LogOut>
+        <LogOutFailed>
+            <h3>Logout failed. Reason: @context</h3>
+        </LogOutFailed>
+
+    </RemoteAuthenticatorView>
+
+ 
+
 
 @code{
     [Parameter] public string? Action { get; set; }

@@ -1,11 +1,92 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject NavigationManager _navigationManager
+<head>
+
+    <link rel="stylesheet" href="css/patients.css">
+    <link rel="stylesheet" href="css/megagen.css">
+</head>
 
 <div class="page">
 
 
     <main>
         <article>
-            @Body
+            
+            <div id="patients-page">
+
+                <div id="header">
+
+                    <div class="logo-container">
+                        <button class="logo-button" @onclick="NavigateToHome"></button>
+                        <span class="logo-text" @onclick="NavigateToHome" >Megagen</span>
+                    </div>
+
+
+                    <div class="logout-container">
+                        <AuthorizeView Roles="@($"{RolesMegagen.Admin}, {RolesMegagen.Technician}")">
+                            <Authorized>
+                                <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
+                                <span class="logout-text" @onclick="BeginSignOut">Log out</span>
+                            </Authorized>
+                            <NotAuthorized>
+                                @if (context.User.Identity!.IsAuthenticated)
+                                {
+                                    <span class="logout-text" @onclick="BeginSignOut">Log out</span>
+                                }
+                                else
+                                {
+                                    <span class="logout-text" @onclick="NavigateToLogin">Log In</span>
+                                    <span class="logout-text" @onclick="NavigateToRegister">Register</span>
+                                }
+
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+
+
+                </div>
+                @Body
+    </div>
+
+
+
+
+
+
+          
         </article>
     </main>
 </div>
+
+
+
+@code {
+    protected void NavigateToDoctors()
+    {
+
+        _navigationManager.NavigateTo("doctors");
+    }
+    protected void NavigateToLogin()
+    {
+
+        _navigationManager.NavigateToLogin("authentication/login");
+    }
+    protected void NavigateToRegister()
+    {
+
+        _navigationManager.NavigateTo("authentication/register");
+    }
+
+    protected void BeginSignOut()
+    {
+
+        _navigationManager.NavigateToLogout("authentication/logout");
+    }
+    protected void NavigateToHome()
+    {
+
+        _navigationManager.NavigateTo("/");
+    }
+}

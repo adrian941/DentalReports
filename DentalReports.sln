@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DentalReports.Server", "DentalReports\Server\DentalReports.Server.csproj", "{91C08928-90EF-4A8B-B02F-D9BEB7570332}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DentalReports.Server", "DentalReports\Server\DentalReports.Server.csproj", "{91C08928-90EF-4A8B-B02F-D9BEB7570332}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DentalReports.Client", "DentalReports\Client\DentalReports.Client.csproj", "{06B3DDBE-81C1-4B51-AAC8-80BB252B35A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DentalReports.Client", "DentalReports\Client\DentalReports.Client.csproj", "{06B3DDBE-81C1-4B51-AAC8-80BB252B35A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DentalReports.Shared", "DentalReports\Shared\DentalReports.Shared.csproj", "{08189AF3-289B-4F34-B900-2807B6D5ADC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DentalReports.Shared", "DentalReports\Shared\DentalReports.Shared.csproj", "{08189AF3-289B-4F34-B900-2807B6D5ADC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

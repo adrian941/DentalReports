@@ -21,12 +21,20 @@
         <link rel="stylesheet" href="~/Identity/css/site.css" asp-append-version="true" />
     </environment>
     <style>
+        #patients-page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
        #header {
             z-index: 5;
             display:flex;
             flex-direction: row;
             align-items: center;
-            margin-bottom: 10px;
+            /* margin-bottom: 10px; */
+            background-color: #20204D;
+       
         }
         a,p {
             text-decoration: none;
@@ -50,14 +58,15 @@
             background-position: center center;
             object-fit: cover;
             margin: 10px;
-            margin-left: 0;
+            margin-left: 15px;
         }
 
         .logo-text {
-            font-family: --bs-body-font-family;
-            font-size: 25px;
+            color: white;
+            font-size: 17px;
             font-weight: 600;
             vertical-align: central;
+            font-family: var(--bs-body-font-family);
         }
 
     </style>
@@ -65,12 +74,13 @@
 <body>
 
  
+    <div id="header">
+        <button class="logo-button" ></button>
+        <span class="logo-text">Megagen</span>
+    </div>
+    <div class="container"><br/>
 
-    <div class="container">
-        <div id="header">
-            <button class="logo-button"></button>
-            <span class="logo-text">Megagen</span>
-        </div>
+        
 
         <partial name="_CookieConsentPartial" optional />
         <main role="main" class="pb-1">
