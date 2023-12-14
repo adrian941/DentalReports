@@ -1,4 +1,8 @@
-﻿<CascadingAuthenticationState>
+﻿ 
+
+
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
@@ -12,7 +16,12 @@
                     }
                     else
                     {
-                        <p role="alert">You are not authorized to access this resource.</p>
+                        <section class="section d-flex flex-column align-items-center justify-content-center">
+                            <h2 class="py-4" style="margin:15px;">You are not authorized to access this resource.</h2>
+                            <a class="btn btn-secondary" href="/">Back to home</a>
+                            <img src="images/not-found.svg" class="img-fluid py-5" style="max-width: 500px">
+                        </section>
+
                     }
                 </NotAuthorized>
             </AuthorizeRouteView>
@@ -21,8 +30,15 @@
         <NotFound>
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
+                <section class="section d-flex flex-column align-items-center justify-content-center">
+                    <h2 class="py-4" style="margin:15px;">Sorry, there's nothing at this address.</h2>
+                    <a class="btn btn-secondary" href="/">Back to home</a>
+                    <img src="images/not-found.svg" class="img-fluid py-5" style="max-width: 500px">
+                </section>
+                
             </LayoutView>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+ 

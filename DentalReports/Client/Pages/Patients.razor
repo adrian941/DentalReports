@@ -17,9 +17,17 @@
     <AuthorizeView>
         <Authorized>
             <div style="margin:15px;">
-                <h3> You are authenticated! </h3>
-                <h5> Congratulations, you are logged in. </h5>
-                <h5> Here it will be created a new site for Megagen1 </h5>
+            <h3> You are authenticated,  @context.User.Identity!.Name !</h3>
+            
+            @* Get the FirstName Claim of User *@
+            <h5> Your FirstName is: @context.User.FindFirst(c => c.Type == "FirstName")?.Value </h5>
+            <h5> Your FirstName is: @context.User.Claims.FirstOrDefault(c => c.Type == "FirstName")?.Value </h5>
+
+
+            <h5> Here it will be created a new site for Megagen. </h5>
+            <br />
+
+            <button @onclick="NavigateToStl"> View STL </button>
 
             </div>
         
@@ -44,17 +52,27 @@
 
 
 @code {
- 
 
+    private void NavigateToStl()
+    {
+        _navigationManager.NavigateTo("/view-stl");
+    }
 
-
-
-   
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        
+
+        string FirstName = user.FindFirst(c => c.Type == "FirstName")?.Value;
+        string LastName = user.FindFirst(c => c.Type == "LastName")?.Value;
+ 
+
+
+
+
     }
+
+
+
 }

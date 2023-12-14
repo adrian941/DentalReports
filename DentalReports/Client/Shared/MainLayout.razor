@@ -2,11 +2,15 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject NavigationManager _navigationManager
+ 
+
+
 <head>
 
     <link rel="stylesheet" href="css/patients.css">
     <link rel="stylesheet" href="css/megagen.css">
 </head>
+ 
 
 <div class="page">
 
@@ -25,6 +29,11 @@
 
 
                     <div class="logout-container">
+                        <AuthorizeView Roles="@RolesMegagen.Admin">
+                            <Authorized>
+                                <span class="logout-text" @onclick="NavigateToTechnicians">Technicians</span>
+                            </Authorized>
+                        </AuthorizeView>
                         <AuthorizeView Roles="@($"{RolesMegagen.Admin}, {RolesMegagen.Technician}")">
                             <Authorized>
                                 <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
@@ -40,7 +49,6 @@
                                     <span class="logout-text" @onclick="NavigateToLogin">Log In</span>
                                     <span class="logout-text" @onclick="NavigateToRegister">Register</span>
                                 }
-
                             </NotAuthorized>
                         </AuthorizeView>
                     </div>
@@ -63,6 +71,16 @@
 
 
 @code {
+    public string logoUrl = "";
+  
+    public string technicianName = "";
+
+ 
+
+    protected void NavigateToTechnicians()
+    {
+        _navigationManager.NavigateTo("technicians");
+    }
     protected void NavigateToDoctors()
     {
 
@@ -89,4 +107,7 @@
 
         _navigationManager.NavigateTo("/");
     }
+
+ 
+
 }

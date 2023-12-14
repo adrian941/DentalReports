@@ -1,0 +1,47 @@
+﻿@page "/view-stl"
+@attribute [Authorize]
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+
+<h3>View Stl</h3>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const header = document.getElementById("header");
+        header.style.display = "none";
+    });
+</script>
+
+@code {
+    protected override void OnInitialized()
+    {
+
+        base.OnInitialized();
+        _navigationManager.LocationChanged += HandleLocationChanged!;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            HideHeader();
+        }
+    }
+    private void HideHeader()
+    {
+     
+        _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'none';");
+    }
+
+    private void HandleLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        if (!args.Location.Contains("view-stl"))
+        {
+            _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'flex';");
+            Console.WriteLine("Location changed");
+
+        }
+    }
+
+
+}

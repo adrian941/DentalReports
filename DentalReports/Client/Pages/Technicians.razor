@@ -1,11 +1,12 @@
 ﻿@page "/technicians"
 
+@attribute [Authorize(Roles = RolesMegagen.Admin)]
 
-<PageTitle>Patients</PageTitle>
+<PageTitle>Technicians</PageTitle>
 <head>
     @* TODO *@
-    <link rel="stylesheet" href="css/patients.css">
-    <link rel="stylesheet" href="css/megagen.css">
+@*     <link rel="stylesheet" href="css/patients.css">
+    <link rel="stylesheet" href="css/megagen.css"> *@
 </head>
 
 
