@@ -2,7 +2,9 @@
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 100%;
     overflow: hidden;
+    overflow-y: hidden!important;
 }
 body {
     -ms-overflow-style: none;

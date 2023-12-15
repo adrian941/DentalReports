@@ -12,136 +12,162 @@
 
 <PageTitle>Patients</PageTitle>
 
+<AuthorizeView Roles="@($"{RolesMegagen.Admin}, {RolesMegagen.Technician}, {RolesMegagen.Doctor}")">
+    <Authorized>
+
+        <div id="meg-table-container">
+            <table class="meg-table">
+                <thead>
+                    <tr>
+                        @* Header for DOCTORS *@
+                        <th>
+                            <div class="modal-filter">
+                                <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
+                                <button @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
+                            </div>
+                            <div class="meg-sub-filter-space"></div>
+                            <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
+                        </th>
+
+                        @* Header for PATIENTS *@
+                        <th>
+                            <input type="text" @oninput="HandleNameFiltered" class="filter font-size-10" placeholder="search patients"></input>
+                            <div class="meg-sub-filter-space"></div>
+                            <span @onclick="SortByName" class="meg-table-header">Name <b>↑↓</b></span>
+                        </th>
+
+                        @* Header for DATE *@
+                        <th>
+
+                            <div class="modal-filter date-modal-filter-width">
+                                <span @onclick="OpenDateModal" class="date-filter-width">@DisplayDateFilter</span>
+                                <button @onclick="ClearDateFilter" class="clear-filter-btn"></button>
+                            </div>
 
 
-<div id="meg-table-container">
-    <table class="meg-table">
-        <thead>
-            <tr>
-                @* Header for DOCTORS *@
-                <th>
-                    <div class="modal-filter">
-                        <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
-                        <button @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
+                            <div class="meg-sub-filter-space"></div>
+                            <span @onclick="SortByDate" class="meg-table-header">Date <b>↑↓</b></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr class="meg-not-selected-row">
+                        <td>DR Pulin Ionut</td>
+                        <td>Pac Pop Ionel</td>
+                        <td>24.02.2020</td>
+                    </tr>
+                    <tr class="meg-selected-row">
+                        <td>DR Pulin Ionut</td>
+                        <td>Pac Pop Ionel</td>
+                        <td>24.02.2020</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="border:none;">
+                            <div class="meg-bottom-row-container">
+                                <button class="pdf-button"></button>
+                                <button class="stl-button"></button>
+                                <button class="video-button"></button>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    @for (int i = 0; i < 100; i++)
+                    {
+                        <tr class="meg-not-selected-row">
+                            <td>DR Pulin Ionut</td>
+                            <td>Pac Pop Ionel</td>
+                            <td>24.02.2020</td>
+                        </tr>
+                    }
+
+
+
+                </tbody>
+            </table>
+        </div>
+
+        <div id="meg-table-footer">
+
+            <div class="footer-container">
+                <div class="paginator-info-container">
+                    <div>
+
+                        <input type="number" @bind-value="@paginator_EntriesPerPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Entries"></input>
+                        <span> elements/page. @PaginatorStringRange of @paginator_TotalRows entries</span>
                     </div>
-                    <div class="meg-sub-filter-space"></div>
-                    <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
-                </th>
+                </div>
 
-                @* Header for PATIENTS *@
-                <th>
-                    <input type="text" @oninput="HandleNameFiltered" class="filter font-size-10" placeholder="search patients"></input>
-                    <div class="meg-sub-filter-space"></div>
-                    <span @onclick="SortByName" class="meg-table-header">Name <b>↑↓</b></span>
-                </th>
+                <div class="paginator-container">
 
-                @* Header for DATE *@
-                <th>
 
-                    <div class="modal-filter date-modal-filter-width">
-                        <span @onclick="OpenDateModal" class="date-filter-width">@DisplayDateFilter</span>
-                        <button @onclick="ClearDateFilter" class="clear-filter-btn"></button>
+                    <div style="width:10px;">
                     </div>
 
 
-                    <div class="meg-sub-filter-space"></div>
-                    <span @onclick="SortByDate" class="meg-table-header">Date <b>↑↓</b></span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
 
-            <tr class="meg-not-selected-row">
-                <td>DR Pulin Ionut</td>
-                <td>Pac Pop Ionel</td>
-                <td>24.02.2020</td>
-            </tr>
-            <tr class="meg-selected-row">
-                <td>DR Pulin Ionut</td>
-                <td>Pac Pop Ionel</td>
-                <td>24.02.2020</td>
-            </tr>
-            <tr>
-                <td colspan="3" style="border:none;">
-                    <div class="meg-bottom-row-container">
-                        <button class="pdf-button"></button>
-                        <button class="stl-button"></button>
-                        <button class="video-button"></button>
+
+                    <div>
+                        <button class="btn-paginator" @onclick="PaginatorFirst">|&lt;</button>
                     </div>
-                </td>
 
-            </tr>
+                    <div>
+                        <button class="btn-paginator" @onclick="PaginatorPrevious">&lt;</button>
+                    </div>
 
-            @for(int i = 0; i < 100; i++)
-            {
-                <tr class="meg-not-selected-row">
-                    <td>DR Pulin Ionut</td>
-                    <td>Pac Pop Ionel</td>
-                    <td>24.02.2020</td>
-                </tr>
-            }
-       
-   
+                    <div>
+                        <span>Page  : </span>
+                        <input type="number" @bind-value="@paginator_CurrentPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Pages"></input>
+                        <span>of @paginator_PagesNumber</span>
+                    </div>
 
-        </tbody>
-    </table>
-</div>
 
-<div id="meg-table-footer">
+                    <div>
+                        <button class="btn-paginator" @onclick="PaginatorNext">&gt;</button>
+                    </div>
 
-    <div class="footer-container">
-        <div class="paginator-info-container">
-            <div>
+                    <div>
+                        <button class="btn-paginator" @onclick="PaginatorLast">&gt;|</button>
+                    </div>
 
-                <input type="number" @bind-value="@paginator_EntriesPerPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Entries"></input>
-                <span> elements/page. @PaginatorStringRange of @paginator_TotalRows entries</span>
+
+
+
+
+                </div>
+            </div>
+            <div class="add-btn-container">
+                <button class="add-button" @onclick="NavigateToAddPatient"></button>
             </div>
         </div>
 
-        <div class="paginator-container">
 
 
-            <div style="width:10px;">
+
+    </Authorized>
+    <NotAuthorized>
+
+        @if (context.User.Identity.IsAuthenticated)
+        {
+            <div style="margin:15px;">
+                <h3> On this website, you don't have the Doctor role, yet!  </h3>
+                <h5> <a>Please, ask your Dental Technician to give you access.</a>!</h5>
+
             </div>
 
+        }
+        else
+        {
+            <div style="margin:15px;">
+                <h3> You are not authenticated! </h3>
+                <h5> Please <a href="/authentication/login">Login </a> or <a href="/authentication/register"> Register </a> !</h5>
 
-
-
-            <div>
-                <button class="btn-paginator" @onclick="PaginatorFirst">|&lt;</button>
             </div>
+        }
 
-            <div>
-                <button class="btn-paginator" @onclick="PaginatorPrevious">&lt;</button>
-            </div>
-
-            <div>
-                <span>Page  : </span>
-                <input type="number" @bind-value="@paginator_CurrentPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Pages"></input>
-                <span>of @paginator_PagesNumber</span>
-            </div>
-
-
-            <div>
-                <button class="btn-paginator" @onclick="PaginatorNext">&gt;</button>
-            </div>
-
-            <div>
-                <button class="btn-paginator" @onclick="PaginatorLast">&gt;|</button>
-            </div>
-
-
-
-
-
-        </div>
-    </div>
-    <div class="add-btn-container">
-        <button class="add-button" @onclick="NavigateToAddPatient"></button>
-    </div>
-</div>
-
-
+    </NotAuthorized>
+</AuthorizeView>
 
 
 

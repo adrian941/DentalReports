@@ -2,7 +2,12 @@
 @attribute [Authorize(Roles = $"{RolesMegagen.Admin}, {RolesMegagen.Technician}")]
 @inject HttpClient _httpClient
 @inject IModalService _modal
-
+<style>
+    body {
+    
+        overflow: hidden;
+    }
+</style>
 
 
 <PageTitle>Doctors</PageTitle>
@@ -68,7 +73,14 @@
         var modalWindow = _modal.Show<AddDoctor>("Assign a Doctor", options);
         var result = await modalWindow.Result;
 
-        Response = result.Data!.ToString();
+        try
+        {
+            Response = result.Data!.ToString();
+        }
+        catch (Exception e)
+        {
+            Response = "";
+        }
         StateHasChanged();
 
     }

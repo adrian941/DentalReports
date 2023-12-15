@@ -2,6 +2,11 @@
 @attribute [Authorize(Roles = RolesMegagen.Admin)]
 @inject HttpClient _httpClient
 @inject IModalService _modal
+<style>
+    body {
+        overflow: hidden;
+    }
+</style>
 
 <PageTitle>Technicians</PageTitle>
 <head>
@@ -69,8 +74,16 @@
         options.DisableBackgroundCancel = true;
         var modalWindow = _modal.Show<AddTechnician>("Add new Technician", options);
         var result =await modalWindow.Result;
-        
-        Response = result.Data!.ToString();
+
+        try
+        {
+            Response = result.Data!.ToString();
+        }
+        catch(Exception e)
+        {
+            Response =  "";
+        }
+
         StateHasChanged();
  
     }
