@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using DentalReports.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -14,5 +15,6 @@ builder.Services.AddHttpClient("DentalReports.ServerAPI", client => client.BaseA
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("DentalReports.ServerAPI"));
 
 builder.Services.AddApiAuthorization();
+builder.Services.AddBlazoredModal();
 
 await builder.Build().RunAsync();

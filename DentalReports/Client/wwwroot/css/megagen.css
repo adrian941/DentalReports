@@ -1,7 +1,11 @@
-﻿html, body {
+﻿body, html {
     margin: 0;
     padding: 0;
+    height: 100%;
     overflow: hidden;
+}
+body {
+    -ms-overflow-style: none;
 }
 
 h3, h5 {
@@ -11,20 +15,17 @@ a, p {
     text-decoration: none!important; 
     font-family: --bs-body-font-family!important;
 }
-
-
 ::-webkit-scrollbar {
     width: 0;
 }
- 
 ::-webkit-scrollbar-thumb {
     background: transparent;
 }
 
- 
-body {
-    -ms-overflow-style: none;
+button {
+    user-select: none;
 }
+
 
 /*Butoane si Slide*/
 
@@ -54,10 +55,6 @@ body {
     box-shadow: 0px 0px 68px -28px rgba(0,0,0,1);
     color: #fff;
 }
-
-
-
-
 .stl-button {
     background-color: transparent;
     color: white;
@@ -75,7 +72,6 @@ body {
     .stl-button.button-black {
         background-image: url('/images/STL-black.png');
     }
-
 .pdf-button {
     background-color: transparent;
     color: white;
@@ -90,7 +86,6 @@ body {
     background-position: center center;
     object-fit: cover;
 }
-
 .video-button {
     background-color: transparent;
     color: white;
@@ -108,7 +103,6 @@ body {
     .video-button.button-black {
         background-image: url('/images/MP4-black.png');
     }
-
 .menu-button {
     background-color: transparent;
     color: white;
@@ -143,7 +137,18 @@ body {
     background-position: center center;
     object-fit: cover;
 }
-
+.add-button {
+    background-color: transparent;
+    color: white;
+    height: 30px  ;
+    width: 30px ;
+    border: none;
+    background-image: url('/images/ADD.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
 .search-button {
     background-color:transparent;
     color: white;
@@ -175,6 +180,64 @@ body {
     margin: 10px;
     margin-left: 15px;
 }
+
+
+#patients-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#header {
+    flex-grow: 0;
+    background-color: #20204D;
+    z-index: 5;
+}
+
+
+
+
+#header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+
+
+
+
+.logout-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.logo-text {
+    color: white;
+    font-size: 17px;
+    font-weight: 600;
+    vertical-align: central;
+    font-family: var(--bs-body-font-family) !important;
+}
+
+
+
+.logout-text {
+    text-align: right;
+    color: white;
+    font-size: 15px;
+    font-weight: 200;
+    margin-right: 15px;
+}
+
 
 .button-35w {
     width: 35px;

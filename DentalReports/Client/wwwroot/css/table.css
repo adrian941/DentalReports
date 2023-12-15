@@ -1,0 +1,341 @@
+﻿:root {
+    --megagen-blue: #20204D;
+    --megagen-light-blue: #E0E1E5;
+}
+span {
+    font-size: 10.4px;
+    user-select: none;
+    color: var(--megagen-blue);
+}
+
+#meg-table-container {
+    overflow-y: scroll;
+}
+.meg-table {
+    overflow: auto;
+    border-collapse: collapse;
+    width: calc(100vw - 20px);
+ 
+    margin: 10px;
+    margin-top: 0;
+}
+    .meg-table thead {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 2;
+    }
+
+.meg-table-header {
+    padding-bottom: 7px;
+    font-size: 17.4px;
+    font-weight: 600;
+    color: var(--megagen-blue);
+    text-decoration: none;
+}
+
+.meg-bottom-row-container {
+  
+    background-color: var(--megagen-blue);
+    position: relative;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0px;
+    margin: 0px;
+    border-collapse: collapse;
+    border: none;
+}
+.meg-selected-row {
+    height: 12px;
+    border: 0px;
+    border-top: 1px solid black;
+    background-color: var(--megagen-blue) !important;
+    font-size: 10.4px;
+    font-weight: 100;
+    border-collapse: collapse;
+}
+
+.meg-not-selected-row {
+    border-collapse: collapse;
+    border: none;
+}
+
+.meg-selected-row td {
+    color: white;
+    border: none!important;
+    height: 12px!important;
+    font-size: 10.4px;
+    border: none;
+}
+
+.meg-not-selected-row td {
+    height: 32px;
+}
+
+
+.meg-table tr {
+    transition: background-color 0.1s;
+}
+
+.meg-table tbody tr:hover {
+    background-color: var(--megagen-blue);
+    color: white;
+}
+
+.meg-table thead {
+    height: 120px;
+}
+.meg-table tbody tr {
+    font-size: 10.4px;
+}
+
+.meg-table thead tr th {
+    border-bottom: 1px solid #B2B2B2;
+    height: 29px;
+}
+tbody tr:nth-child(even) {
+    background-color: var(--megagen-light-blue);
+}
+.meg-table tbody tr td {
+    border-bottom: 1px solid #D9D9D9;
+    height: 29px;
+}
+.meg-table tr.meg-selected-row {
+    background-color: var(--megagen-blue);
+    color: white;
+}
+td, th {
+
+    user-select: none;
+}
+
+.meg-table thead tr {
+    border-bottom: 1px solid var(--megagen-blue);
+}
+
+
+.meg-table tbody tr td {
+    padding: 0px;
+    margin: 0px;
+}
+
+th {
+    font-size: 22px;
+}
+
+
+
+
+
+
+
+
+
+/*   */
+
+.modal-filter {
+    text-align: left;
+    width: 120px;
+    height: 35px;
+    padding: 5px;
+    margin: 5px;
+    margin-left: 0px;
+    padding-right: 0px;
+    box-sizing: border-box;
+    border: 0px solid var(--megagen-blue);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 100;
+    color: var(--megagen-blue);
+    background-color: var(--megagen-light-blue);
+    user-select: none;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.date-modal-filter-width {
+    width: 90px;
+}
+.font-size-10 {
+    font-size: 10px;
+    width: 95px;
+}
+.date-filter-width {
+    font-size: 10px;
+    width: 67px;
+}
+
+input[type=text] {
+    width: 110px;
+    height: 35px;
+    padding: 5px;
+    margin: 5px;
+    margin-left: 0px;
+    box-sizing: border-box;
+    border: 0px solid var(--megagen-blue);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 100;
+    color: var(--megagen-blue);
+    background-color: var(--megagen-light-blue);)
+    resize: vertical;
+    user-select: none;
+}
+    input[type=text].font-size-10 {
+        font-size: 11px;
+    }
+
+.filter {
+    padding-bottom: 100px;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--megagen-blue);
+    margin-bottom: 100px;
+}
+
+.clear-filter-btn {
+    width: 13px;
+    height: 13px;
+    margin: 0px;
+    padding: 0px;
+    background-image: url('/images/clear.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+    border: none;
+    background-color: transparent;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+
+
+
+
+    @media (max-width: 799px) {
+        .meg-table {
+            border-collapse: collapse;
+            width: 5vw;
+      
+            margin-top: 0;
+            padding-left: 0px;
+            padding-right: 0px;
+            margin-left: 5px;
+            margin-right: 5px;
+            border-spacing: 0;
+            width: calc(100vw - 10px);
+        }
+    }
+
+
+
+/*Footer*/
+
+
+
+#meg-table-footer {
+    
+    margin-top: 15px;
+    display: flex;
+    flex-grow: 0;
+    
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    justify-content: center;
+    background-color: white;
+    padding: 4px;
+    user-select: none;
+    z-index: 2;
+}
+
+    #meg-table-footer.footer-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+    }
+
+.paginator-info-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.paginator-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+}
+.btn-paginator {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center center;
+    /*Arial */
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--megagen-light-blue);
+    color: var(--megagen-blue);
+    border: none;
+}
+.add-btn-container {
+    margin-top: 5px;
+    left: 50%;
+    transform: translateX(50%);
+}
+
+
+
+.footer-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+
+}
+
+.paginator-info-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.paginator-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+}
+
+
+
+
+
+
+/*paginator*/
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+    width: 25px;
+    height: 25px;
+    font-size: 10.4px;
+    border: 1px solid var(--megagen-blue);
+    border-radius: 20%;
+    text-align: center;
+}
+

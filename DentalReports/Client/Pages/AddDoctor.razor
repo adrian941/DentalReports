@@ -1,0 +1,48 @@
+﻿@attribute [Authorize(Roles = $"{RolesMegagen.Admin}, {RolesMegagen.Technician}")]
+@inject HttpClient _httpClient
+
+<EditForm Model="displayDoctor" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="doc-email">Email: </label>
+        <InputText id="doc-email" @bind-Value="displayDoctor.Email"></InputText>
+    </div>
+    <br />
+    <div class="form-group">
+        <button class="btn btn-success" type="submit">Assign Doctor!</button>
+    </div><br />
+
+</EditForm>
+
+
+
+@code {
+    [CascadingParameter] public BlazoredModalInstance ModalInstance { get; set; }
+
+    private DisplayDoctor displayDoctor = new DisplayDoctor();
+
+    private async Task HandleValidSubmit()
+    {
+
+        var output = await _httpClient.PostAsJsonAsync<DisplayDoctor>("/api/Technician/AddDoctor", displayDoctor);
+        string response = await output.Content.ReadAsStringAsync();
+
+
+        try
+        {
+
+            await ModalInstance!.CloseAsync(ModalResult.Ok(response));
+            await ModalInstance!.CancelAsync()!;
+
+        }
+        catch (Exception ex)
+        {
+            await ModalInstance?.CancelAsync()!;
+        }
+
+    }
+
+
+}

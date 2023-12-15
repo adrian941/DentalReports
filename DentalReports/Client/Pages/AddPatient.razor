@@ -1,0 +1,218 @@
+﻿@using System.Net.Http.Headers
+@using System.Text.RegularExpressions
+@attribute [Authorize(Roles = $"{RolesMegagen.Admin}, {RolesMegagen.Technician}")]
+@inject HttpClient _httpClient
+
+
+<EditForm Model="displayPatient" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="selectDoctor">Select Doctor:</label>
+        <InputSelect id="selectDoctor" @bind-Value="displayPatient.SelectedDoctorId" class="form-control">
+            <option value="0"> Choose a Doctor...</option>
+            @foreach (var doctor in displayPatient.Doctors)
+            {
+                <option value="@doctor.Id">@doctor.FirstName @doctor.LastName (@doctor.Email)</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => displayPatient.SelectedDoctorId)" class="text-danger" />
+    </div><br />
+
+    <div class="form-group">
+        <label for="FirstName">Patient's First Name:</label>
+        <InputText @bind-Value="displayPatient.FirstName" id="FirstName" class="form-control" placeholder="John" />
+        <ValidationMessage For="@(() => displayPatient.FirstName)" class="text-danger" />
+    </div>
+
+    <div class="form-group">
+        <label for="LastName">Patient's Last Name:</label>
+        <InputText @bind-Value="displayPatient.LastName" id="LastName" class="form-control" placeholder="Doe" />
+        <ValidationMessage For="@(() => displayPatient.LastName)" class="text-danger" />
+    </div>   <br>
+
+    <div class="form-group">
+        <label for="DateAdded">Date Added in Laboratory:</label> <br>
+        <InputDate @bind-Value="displayPatient.DateAdded" class="form-control" />
+        <ValidationMessage For="@(() => displayPatient.DateAdded)" class="text-danger" />
+
+
+    </div>   <br>
+
+    <div class="form-group">
+        <label for="Files">Upload Files:</label> <br>
+        <InputFile OnChange="@OnInputFileChange" class="form-control" multiple accept=".pdf,.mp4,.stl,.txt,.json" />
+        <p class="text-danger">@FileErrors</p>
+    </div>   <br>
+
+
+
+
+
+
+    <div class="form-group">
+        <button class="btn btn-success" type="submit">Add Patient!</button>
+    </div><br />
+
+
+</EditForm>
+
+@code {
+    MultipartFormDataContent formData = new MultipartFormDataContent();
+    private int maxAllowedFiles = 20; // TODO : Vezi la Tim Corey cum fac sa pun aici validari!
+    private long maxFileSize = 1024 * 1024 * 100; // 100MB
+
+
+
+    private DisplayPatient displayPatient = new DisplayPatient();
+    [CascadingParameter] public BlazoredModalInstance ModalInstance { get; set; }
+    private string FileErrors = "";
+
+    private bool AreFilesValid = false;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        FileErrors = "";
+        AreFilesValid = areFilesValid(e);
+
+        if (!AreFilesValid)
+        {
+            displayPatient.FileCount = 0;
+            formData = new MultipartFormDataContent();
+            return;
+        }
+
+
+
+        formData = new MultipartFormDataContent();
+        displayPatient.FileCount = e.FileCount;
+
+
+        foreach (IBrowserFile file in e.GetMultipleFiles(20))
+        {
+            var fileContent = new StreamContent(file.OpenReadStream(long.MaxValue));
+
+            string fileExtension = Path.GetExtension(file.Name);
+            string mediatype = MegagenUtility.GetMediaTypeHeader(fileExtension);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(mediatype);
+
+
+            formData.Add(
+                content: fileContent,
+                name: "\"files\"",
+                fileName: file.Name);
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        displayPatient.Doctors = ( await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("/api/Technician/GetDoctors") )!;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if(!AreFilesValid)
+        {
+            FileErrors = "Files are not valid";
+        }
+        FileErrors = "Uploading files ... ";
+
+        string patientJson = JsonSerializer.Serialize(displayPatient);
+   
+ 
+        formData.Add(new StringContent(patientJson, Encoding.UTF8, "application/json"), "patientJson");
+
+        var response = await _httpClient.PostAsync("/api/Technician/AddPatient", formData);
+
+        FileErrors = (await response.Content.ReadAsStringAsync());
+        var code = response.StatusCode.ToString();
+
+        bool test = response.StatusCode == System.Net.HttpStatusCode.OK;
+    }
+
+    private bool areFilesValid(InputFileChangeEventArgs e)
+    {
+        if (e.FileCount > maxAllowedFiles)
+        {
+            FileErrors = $"You can upload maximum {maxAllowedFiles} files!";
+            return false;
+        }
+
+
+
+        // Check total files size
+        if (e.GetMultipleFiles(maximumFileCount: 20).Sum(file => file.Size) > maxFileSize)
+        {
+            FileErrors = $"The total size of the files should be less than {maxFileSize / (1024 * 1024)}MB!";
+            return false;
+        }
+
+        if (e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name.Length > 40))
+        {
+            FileErrors = "One file name has more than 20 characters!";
+            return false;
+        }
+
+        // Check if a file with a specific name is here
+        if (!e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name == "_STL_Config.json"))
+        {
+            FileErrors = "Missing file _STL_Config.json!";
+            return false;
+        }
+
+        if (!e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name.ToLower().Contains(".stl")))
+        {
+            FileErrors = "Missing STL files";
+            return false;
+        }
+
+        if (e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name == "_Video_Config.txt"))
+        {
+            if (!e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name == "Video_Final.mp4"))
+            {
+                FileErrors = "Missing file Video_Final.mp4";
+                return false;
+            }
+        }
+
+        if (e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name == "Video_Final.mp4"))
+        {
+            if (!e.GetMultipleFiles(maximumFileCount: 20).Any(file => file.Name == "_Video_Config.txt"))
+            {
+                FileErrors = "Missing file _Video_Config.txt";
+                return false;
+            }
+        }
+
+        string stlRegex = @"^STL_[\w\-]+\.stl$";
+        string pdfRegex = @"^Report_\d+\.pdf$";
+
+        string[] filesNames = e.GetMultipleFiles(maximumFileCount: 20).Select(file => file.Name).ToArray();
+        string fileNamesErrors = "File(s) : ";
+        bool areFilesCorrect = true;
+        foreach (string fileName in filesNames)
+        {
+            bool isStlMatch = Regex.IsMatch(fileName, stlRegex);
+            bool isPdfMatch = Regex.IsMatch(fileName, pdfRegex);
+
+            if (!(isStlMatch || isPdfMatch || fileName == "_STL_Config.json" || fileName == "_Video_Config.txt" || fileName == "Video_Final.mp4"))
+            {
+                fileNamesErrors += "'" + fileName + "', ";
+                areFilesCorrect = false;
+            }
+
+        }
+        fileNamesErrors = fileNamesErrors.Substring(0, fileNamesErrors.Length - 2);
+        fileNamesErrors += "-> are not accepted ! Their name does not contain the default File Name!";
+        if (!areFilesCorrect)
+        {
+            FileErrors = fileNamesErrors;
+            return false;
+        }
+
+
+
+        return true;
+    }
+}

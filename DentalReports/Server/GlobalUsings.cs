@@ -2,6 +2,10 @@
 global using Microsoft.Extensions.Configuration;
 global using DentalReports.Shared.Models;
 global using DentalReports.Shared.Common;
+global using DentalReports.Shared.DisplayModels;
+global using Microsoft.AspNetCore.Authorization;
+global using DentalReports.Server.Models;
+global using Microsoft.AspNetCore.Identity;
 
 namespace DentalReports.Server;
 

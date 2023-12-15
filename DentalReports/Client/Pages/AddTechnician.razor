@@ -1,0 +1,52 @@
+﻿@inject HttpClient _httpClient
+
+<EditForm Model="displayTechnician" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+ 
+    <div class="form-group">
+        <label for="th-email">Email: </label>
+        <InputText id="th-email" @bind-Value="displayTechnician.Email"></InputText>
+    </div>
+    <br/>
+    <div class="form-group">
+        <button class="btn btn-success" type="submit">Add Technician!</button>
+    </div><br />
+
+</EditForm>
+
+
+
+
+
+
+
+@code {
+    [CascadingParameter] public BlazoredModalInstance ModalInstance { get; set; }
+
+    private DisplayTechnician displayTechnician = new DisplayTechnician();
+
+
+    private async Task HandleValidSubmit()
+    {
+
+        var output = await _httpClient.PostAsJsonAsync<DisplayTechnician>("/api/Admin/AddTechnician", displayTechnician);
+        string response = await output.Content.ReadAsStringAsync();
+
+
+        try
+        {
+
+            await ModalInstance!.CloseAsync(ModalResult.Ok(response));
+            await ModalInstance!.CancelAsync()!;
+
+        }
+        catch (Exception ex)
+        {
+            await ModalInstance?.CancelAsync()!;
+        }
+
+    }
+
+
+}

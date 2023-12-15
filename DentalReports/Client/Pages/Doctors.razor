@@ -1,16 +1,76 @@
 ﻿@page "/doctors"
-
 @attribute [Authorize(Roles = $"{RolesMegagen.Admin}, {RolesMegagen.Technician}")]
+@inject HttpClient _httpClient
+@inject IModalService _modal
+
+
 
 <PageTitle>Doctors</PageTitle>
 <head>
-    @* TODO *@
- 
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/table.css">
 </head>
 
+  <div id="meg-table-container">
+    <table class="meg-table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Email
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var doctor in DisplayDoctors)
+            {
+                <tr>
+                    <td>@doctor.FirstName @doctor.LastName</td>
+                    <td>@doctor.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-<h3>Doctors</h3>
+
+<h5 style="color:red;margin:10px;"> @Response</h5>
+
+<div class="add-btn-container">
+    <button class="add-button" @onclick="NavigateToAddDoctor"></button>
+</div>
 
 @code {
+    private string? Response = "";
+    public List<DisplayDoctor> DisplayDoctors = new List<DisplayDoctor>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            DisplayDoctors = (await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/GetDoctors"))!;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+    private async void NavigateToAddDoctor()
+    {
+        Response = "";
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = true;
+        var modalWindow = _modal.Show<AddDoctor>("Assign a Doctor", options);
+        var result = await modalWindow.Result;
+
+        Response = result.Data!.ToString();
+        StateHasChanged();
+
+    }
 
 }

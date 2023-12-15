@@ -18,4 +18,6 @@ public class Technician
 
     public List<Doctor> Doctors { get; set; } = new List<Doctor>();
     public List<Patient> Patients { get; set; } = new List<Patient>();
+
+    public int sizeStoragePlanGB { get; set; } = 50;
 }

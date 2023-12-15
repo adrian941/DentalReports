@@ -1,17 +1,79 @@
 ﻿@page "/technicians"
-
 @attribute [Authorize(Roles = RolesMegagen.Admin)]
+@inject HttpClient _httpClient
+@inject IModalService _modal
 
 <PageTitle>Technicians</PageTitle>
 <head>
-    @* TODO *@
-@*     <link rel="stylesheet" href="css/patients.css">
-    <link rel="stylesheet" href="css/megagen.css"> *@
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/table.css">
 </head>
+ 
+<div id="meg-table-container">
+    <table class="meg-table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Email
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var technician in DisplayTechnicians)
+            {
+                <tr>
+                    <td>@technician.FirstName @technician.LastName</td>
+                    <td>@technician.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h5 style="color:red;margin:10px;"> @Response</h5>
+
+<div class="add-btn-container">
+    <button class="add-button" @onclick="NavigateToAddTechnician"></button>
+</div>
 
 
-<h3>Technicians</h3>
+
+
 
 @code {
+
+    private string? Response = "";
+    public List<DisplayTechnician> DisplayTechnicians = new List<DisplayTechnician>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            DisplayTechnicians = (await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/admin/GetTechnicians")) !;
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+    private async void NavigateToAddTechnician()
+    {
+        Response = "";
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = true;
+        var modalWindow = _modal.Show<AddTechnician>("Add new Technician", options);
+        var result =await modalWindow.Result;
+        
+        Response = result.Data!.ToString();
+        StateHasChanged();
+ 
+    }
+
 
 }

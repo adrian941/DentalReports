@@ -3,76 +3,260 @@
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject NavigationManager _navigationManager
 @inject IJSRuntime _jsRuntime
+@inject IModalService _modal
 
- 
-
+<head>
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/table.css">
+</head>
 
 <PageTitle>Patients</PageTitle>
 
- 
 
 
+<div id="meg-table-container">
+    <table class="meg-table">
+        <thead>
+            <tr>
+                @* Header for DOCTORS *@
+                <th>
+                    <div class="modal-filter">
+                        <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
+                        <button @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
+                    </div>
+                    <div class="meg-sub-filter-space"></div>
+                    <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
+                </th>
+
+                @* Header for PATIENTS *@
+                <th>
+                    <input type="text" @oninput="HandleNameFiltered" class="filter font-size-10" placeholder="search patients"></input>
+                    <div class="meg-sub-filter-space"></div>
+                    <span @onclick="SortByName" class="meg-table-header">Name <b>↑↓</b></span>
+                </th>
+
+                @* Header for DATE *@
+                <th>
+
+                    <div class="modal-filter date-modal-filter-width">
+                        <span @onclick="OpenDateModal" class="date-filter-width">@DisplayDateFilter</span>
+                        <button @onclick="ClearDateFilter" class="clear-filter-btn"></button>
+                    </div>
 
 
-    <AuthorizeView>
-        <Authorized>
-            <div style="margin:15px;">
-            <h3> You are authenticated,  @context.User.Identity!.Name !</h3>
-            
-            @* Get the FirstName Claim of User *@
-            <h5> Your FirstName is: @context.User.FindFirst(c => c.Type == "FirstName")?.Value </h5>
-            <h5> Your FirstName is: @context.User.Claims.FirstOrDefault(c => c.Type == "FirstName")?.Value </h5>
+                    <div class="meg-sub-filter-space"></div>
+                    <span @onclick="SortByDate" class="meg-table-header">Date <b>↑↓</b></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
 
+            <tr class="meg-not-selected-row">
+                <td>DR Pulin Ionut</td>
+                <td>Pac Pop Ionel</td>
+                <td>24.02.2020</td>
+            </tr>
+            <tr class="meg-selected-row">
+                <td>DR Pulin Ionut</td>
+                <td>Pac Pop Ionel</td>
+                <td>24.02.2020</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="border:none;">
+                    <div class="meg-bottom-row-container">
+                        <button class="pdf-button"></button>
+                        <button class="stl-button"></button>
+                        <button class="video-button"></button>
+                    </div>
+                </td>
 
-            <h5> Here it will be created a new site for Megagen. </h5>
-            <br />
+            </tr>
 
-            <button @onclick="NavigateToStl"> View STL </button>
+            @for(int i = 0; i < 100; i++)
+            {
+                <tr class="meg-not-selected-row">
+                    <td>DR Pulin Ionut</td>
+                    <td>Pac Pop Ionel</td>
+                    <td>24.02.2020</td>
+                </tr>
+            }
+       
+   
 
+        </tbody>
+    </table>
+</div>
+
+<div id="meg-table-footer">
+
+    <div class="footer-container">
+        <div class="paginator-info-container">
+            <div>
+
+                <input type="number" @bind-value="@paginator_EntriesPerPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Entries"></input>
+                <span> elements/page. @PaginatorStringRange of @paginator_TotalRows entries</span>
             </div>
-        
-        </Authorized>
-        <NotAuthorized>
+        </div>
 
-            <div style="margin:15px;">
-                <h3> You are not authenticated! </h3>
-                <h5> Please <a href="/authentication/login">Login </a> or <a href="/authentication/register"> Register </a> !</h5>
+        <div class="paginator-container">
 
+
+            <div style="width:10px;">
             </div>
-          
-        </NotAuthorized>
-    </AuthorizeView>
 
 
 
- 
+
+            <div>
+                <button class="btn-paginator" @onclick="PaginatorFirst">|&lt;</button>
+            </div>
+
+            <div>
+                <button class="btn-paginator" @onclick="PaginatorPrevious">&lt;</button>
+            </div>
+
+            <div>
+                <span>Page  : </span>
+                <input type="number" @bind-value="@paginator_CurrentPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Pages"></input>
+                <span>of @paginator_PagesNumber</span>
+            </div>
+
+
+            <div>
+                <button class="btn-paginator" @onclick="PaginatorNext">&gt;</button>
+            </div>
+
+            <div>
+                <button class="btn-paginator" @onclick="PaginatorLast">&gt;|</button>
+            </div>
+
+
+
+
+
+        </div>
+    </div>
+    <div class="add-btn-container">
+        <button class="add-button" @onclick="NavigateToAddPatient"></button>
+    </div>
+</div>
+
+
+
 
 
 
 
 
 @code {
+    private string PaginatorStringRange = "";
 
-    private void NavigateToStl()
+    private int paginator_TotalRows = 0;
+    private int paginator_EntriesPerPage = 10;
+    private int paginator_PagesNumber = 0;
+    private int paginator_CurrentPage = 1;
+
+    private string DoctorSortingMode = SortingMode.Descending;
+    private string NameSortingMode = SortingMode.Descending;
+    private string DateSortingMode = SortingMode.Descending;
+
+    private string DisplayDoctorTextFilters = "Select Doctors";
+    private MarkupString DisplayDateFilter = (MarkupString)$"Select Period";
+    private DateTime FromDateFilter = DateTime.MinValue;
+    private DateTime ToDateFilter = DateTime.MaxValue;
+
+    private async void OpenDoctorsModal()
     {
-        _navigationManager.NavigateTo("/view-stl");
+        //TODO
+    }
+    private async void OpenDateModal()
+    {
+        //TODO
+    }
+    private async void ClearDoctorsFilter()
+    {
+        //TODO
+    }
+    private async void ClearDateFilter()
+    {
+        //TODO
+    }
+    private void SortByName()
+    {
+    }
+    private void SortByDate()
+    {
+    }
+    private void SortByDoctor()
+    {
+
+    }
+    private void HandleNameFiltered(ChangeEventArgs args)
+    {
+
+        //TODO
+        // try
+        // {
+
+        //     NameFilter = args.Value.ToString();
+        //     ApplyAllFilters();
+
+        // }
+        // catch (Exception ex)
+        // {
+
+        // }
+
+    }
+    public void PaginatorFirst()
+    {
+    }
+    public void PaginatorPrevious()
+    {
+    }
+    public void PaginatorNext()
+    {
+    }
+    public void PaginatorLast()
+    {
     }
 
 
-    protected override async Task OnInitializedAsync()
+    private void HandleInputChange_Pages(ChangeEventArgs args)
     {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
 
-        string FirstName = user.FindFirst(c => c.Type == "FirstName")?.Value;
-        string LastName = user.FindFirst(c => c.Type == "LastName")?.Value;
+    }
+    private void HandleInputChange_Entries(ChangeEventArgs args)
+    {
+    }
+
+
+
+
+
+
+
+    protected async Task NavigateToAddPatient()
+    {
+
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = true;
+
+        var modalWindows = _modal.Show<AddPatient>("Add new Patient", options);
+        var result = await modalWindows.Result;
+
+
  
-
-
-
-
     }
 
 
 
+
+
+    public class SortingMode
+    {
+
+        public const string Ascending = "Ascending";
+        public const string Descending = "Descending";
+    }
 }
