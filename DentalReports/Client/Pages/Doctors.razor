@@ -2,6 +2,9 @@
 @attribute [Authorize(Roles = $"{RolesMegagen.Admin}, {RolesMegagen.Technician}")]
 @inject HttpClient _httpClient
 @inject IModalService _modal
+@inject IDoctorService _doctorService
+
+
 <style>
     body {
     
@@ -51,19 +54,16 @@
     private string? Response = "";
     public List<DisplayDoctor> DisplayDoctors = new List<DisplayDoctor>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        DisplayDoctors = _doctorService.DisplayDoctors; //Local Storage ( Scoped )
+       
 
-        try
-        {
-            DisplayDoctors = (await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/GetDoctors"))!;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
+        refreshDisplayDoctorAsync();
 
     }
+
+
 
     private async void NavigateToAddDoctor()
     {
@@ -73,16 +73,37 @@
         var modalWindow = _modal.Show<AddDoctor>("Assign a Doctor", options);
         var result = await modalWindow.Result;
 
+        if (result.Cancelled)
+        {
+            return;
+        }
+
         try
         {
             Response = result.Data!.ToString();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Response = "";
         }
+
+        refreshDisplayDoctorAsync();
         StateHasChanged();
 
+    }
+
+    private async void refreshDisplayDoctorAsync()
+    {
+        try
+        {
+            DisplayDoctors = (await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/GetDoctors"))!.OrderBy(x => x.FirstName).ThenBy(x => x.LastName).ToList();
+            _doctorService.DisplayDoctors = DisplayDoctors;
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+
+        }
     }
 
 }

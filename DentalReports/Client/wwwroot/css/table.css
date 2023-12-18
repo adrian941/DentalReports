@@ -181,7 +181,7 @@ input[type=text] {
     font-size: 12px;
     font-weight: 100;
     color: var(--megagen-blue);
-    background-color: var(--megagen-light-blue);)
+    background-color: var(--megagen-light-blue));
     resize: vertical;
     user-select: none;
 }

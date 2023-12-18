@@ -1,19 +1,23 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using System.Text.Json;
+@using System.Text;
+
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Components.WebAssembly.Http
-@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Authorization
+
 @using DentalReports.Client
 @using DentalReports.Client.Shared
 @using DentalReports.Shared.Common
-@using Microsoft.AspNetCore.Authorization
+@using DentalReports.Shared.Services
 @using DentalReports.Shared.DisplayModels
-@using System.Text.Json;
-@using System.Text;
+
+@using Microsoft.JSInterop
 @using Blazored.Modal.Services;
 @using Blazored.Modal;
 @using Blazored;

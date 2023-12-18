@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject NavigationManager _navigationManager
+@inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
 @inject IModalService _modal
 
@@ -51,39 +52,36 @@
                     </tr>
                 </thead>
                 <tbody>
-
-                    <tr class="meg-not-selected-row">
-                        <td>DR Pulin Ionut</td>
-                        <td>Pac Pop Ionel</td>
-                        <td>24.02.2020</td>
-                    </tr>
-                    <tr class="meg-selected-row">
-                        <td>DR Pulin Ionut</td>
-                        <td>Pac Pop Ionel</td>
-                        <td>24.02.2020</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" style="border:none;">
-                            <div class="meg-bottom-row-container">
-                                <button class="pdf-button"></button>
-                                <button class="stl-button"></button>
-                                <button class="video-button"></button>
-                            </div>
-                        </td>
-
-                    </tr>
-
-                    @for (int i = 0; i < 100; i++)
+                    @for (int i = 0; i < FilteredPatients.Count; i++)
                     {
-                        <tr class="meg-not-selected-row">
-                            <td>DR Pulin Ionut</td>
-                            <td>Pac Pop Ionel</td>
-                            <td>24.02.2020</td>
+
+                        int nr = i;
+                        DisplayPatient patient = FilteredPatients[nr];
+
+                        <tr @onclick="() => RowClicked(nr)" class="@(nr == selectedRow ? "meg-selected-row" : "meg-not-selected-row")">
+                            <td>@patient.DoctorFirstName @patient.DoctorLastName.ToUpper()</td>
+                            <td>@patient.FirstName @patient.LastName.ToUpper()</td>
+                            <td>@patient.DateAdded.ToShortDateString()</td>
                         </tr>
+
+                        if (nr == selectedRow)
+                        {
+                            <tr>
+                                <td colspan="3" style="border:none;">
+                                    <div class="meg-bottom-row-container">
+                                        <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
+                                        <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
+                                        <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
+
+                                          @* <button>DELETE</button>  *@
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        }
                     }
-
-
-
+              
                 </tbody>
             </table>
         </div>
@@ -95,7 +93,7 @@
                     <div>
 
                         <input type="number" @bind-value="@paginator_EntriesPerPage" style="width:30px;text-align:center;" @oninput="HandleInputChange_Entries"></input>
-                        <span> elements/page. @PaginatorStringRange of @paginator_TotalRows entries</span>
+                        <span> elements/page. @paginator_StringRange of @paginator_TotalRows entries</span>
                     </div>
                 </div>
 
@@ -148,7 +146,7 @@
     </Authorized>
     <NotAuthorized>
 
-        @if (context.User.Identity.IsAuthenticated)
+        @if (context.User.Identity!.IsAuthenticated)
         {
             <div style="margin:15px;">
                 <h3> On this website, you don't have the Doctor role, yet!  </h3>
@@ -171,95 +169,480 @@
 
 
 
+<script>
+    function adjustFooterPosition() {
+
+        let tableContainer = document.getElementById('table-container');
+
+        let footer = document.getElementById('footer');
+        let header = document.getElementById('header');
+        let table = document.getElementById('patients-table');
+
+        let headerHeight = header.clientHeight;
+        let tableHeight = table.clientHeight;
+        let footerHeight = footer.clientHeight;
+
+        let sumHeight = headerHeight + tableHeight + footerHeight;
+
+        console.log(sumHeight);
+
+        if (sumHeight >= window.innerHeight) {
+            tableContainer.classList.add('table-container-sticky');
+            tableContainer.classList.remove('table-container-normal');
+
+
+        } else {
+            tableContainer.classList.add('table-container-normal');
+            tableContainer.classList.remove('table-container-sticky');
+
+        }
+    }
+    window.adjustFooterPosition = adjustFooterPosition;
+    window.addEventListener('resize', adjustFooterPosition);
+    window.addEventListener('load', adjustFooterPosition);
+</script>
 
 
 
 @code {
-    private string PaginatorStringRange = "";
+    private List<DisplayPatient> OriginalPatients = new List<DisplayPatient>();
+    private List<DisplayPatient> FilteredPatients = new List<DisplayPatient>();
+    private List<DisplayPatient> DisplayPatients = new List<DisplayPatient>();
 
-    private int paginator_TotalRows = 0;
-    private int paginator_EntriesPerPage = 10;
-    private int paginator_PagesNumber = 0;
+
+    private List<DisplayDoctor> OriginalDoctors = new List<DisplayDoctor>();
+    private List<DisplayDoctor> FilteredDoctors = new List<DisplayDoctor>();
+
+
+
+    // Paginator Data 
+    private string paginator_StringRange = "";  // display info in paginator like: "showing 1-10 of 100 entries"
+    private int paginator_TotalRows = 0;        // total number Patient Entries
+    private int paginator_EntriesPerPage = 10;  
+    private int paginator_PagesNumber = 0;      
     private int paginator_CurrentPage = 1;
 
+    private int selectedRow = -1; // Selected Row in Table
+
+    // Sortings 
     private string DoctorSortingMode = SortingMode.Descending;
     private string NameSortingMode = SortingMode.Descending;
     private string DateSortingMode = SortingMode.Descending;
 
+    // Search-Table Filters
+    private string PatientNameFilter = "";
     private string DisplayDoctorTextFilters = "Select Doctors";
     private MarkupString DisplayDateFilter = (MarkupString)$"Select Period";
     private DateTime FromDateFilter = DateTime.MinValue;
     private DateTime ToDateFilter = DateTime.MaxValue;
 
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var  User = _authenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+        var role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value; //TODO : learn about Claims later
+
+        if(role == RolesMegagen.Technician)
+        {
+            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
+            OriginalDoctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/getDoctors") ?? new List<DisplayDoctor>();
+
+        }else if (role == RolesMegagen.Doctor)
+        {
+            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
+            OriginalDoctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/doctor/getCurrentDoctor") ?? new List<DisplayDoctor>();
+        }
+        else
+        {
+            return; // Let just the default HTML messages to be displayed
+        }
+
+        FilteredPatients = OriginalPatients;
+        DisplayPatients = OriginalPatients;
+        FilteredDoctors = OriginalDoctors;
+
+
+
+        InitPaginator();
+
+    }
+    public void InitPaginator()
+    {
+
+
+        paginator_TotalRows = DisplayPatients.Count;
+        paginator_EntriesPerPage = 10;
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                             + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        paginator_CurrentPage = 1;
+
+        DisplayPatients = DisplayPatients.OrderByDescending(x => x.DateAdded).ToList();
+        FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
+
+        paginator_StringRange = $"{(paginator_CurrentPage - 1) * paginator_EntriesPerPage + 1} to {Math.Min(paginator_CurrentPage * paginator_EntriesPerPage, paginator_TotalRows)}";
+
+    }
+    private void RowClicked(int row)
+    {
+        if (selectedRow == row)
+        {
+            selectedRow = -1;
+            StateHasChanged();
+        }
+        else
+        {
+            selectedRow = row;
+            StateHasChanged();
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     private async void OpenDoctorsModal()
     {
-        //TODO
+        ModalParameters parameters = new ModalParameters();
+        parameters.Add("OriginalDoctors", OriginalDoctors);
+
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = false;
+
+        var modalWindows = _modal.Show<ModalDoctorsFilter>("Choose Doctors", parameters, options);
+        var result = await modalWindows.Result;
+
+        if (result.Cancelled)
+        {
+            return;
+        }
+        FilteredDoctors = ((List<DisplayDoctor>)(result.Data));
+
+        if (FilteredDoctors.Count > 1)
+        {
+            DisplayDoctorTextFilters = $"{FilteredDoctors.Count} Doctors selected";
+        }
+        else if (FilteredDoctors.Count == 1)
+        {
+            DisplayDoctorTextFilters = $"{FilteredDoctors[0].FirstName} {FilteredDoctors[0].LastName}";
+        }
+        else
+        {
+            DisplayDoctorTextFilters = $"No Doctors selected";
+        }
+
+
+        ApplyAllFilters();
     }
+
+
+
+
     private async void OpenDateModal()
     {
-        //TODO
+        ModalParameters parameters = new ModalParameters();
+        parameters.Add("FromDate", FromDateFilter);
+        parameters.Add("ToDate", ToDateFilter);
+
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = false;
+
+        var modalWindows = _modal.Show<ModalDateFilter>("Select period", parameters, options);
+        var result = await modalWindows.Result;
+
+        if (result.Cancelled)
+        {
+            return;
+        }
+
+        FromDateFilter = ((Dates)(result.Data)).FromDate;
+        ToDateFilter = ((Dates)(result.Data)).ToDate;
+
+        DisplayDateFilter = (MarkupString)$"{FromDateFilter.ToShortDateString()} to <br /> {ToDateFilter.ToShortDateString()}";
+
+        ApplyAllFilters();
     }
     private async void ClearDoctorsFilter()
     {
-        //TODO
+        FilteredDoctors = OriginalDoctors;
+
+        DisplayDoctorTextFilters = $"Select Doctors";
+        ApplyAllFilters();
     }
     private async void ClearDateFilter()
     {
-        //TODO
+        FromDateFilter = DateTime.MinValue;
+        ToDateFilter = DateTime.MaxValue;
+        DisplayDateFilter = (MarkupString)$"Select Period";
+        ApplyAllFilters();
     }
     private void SortByName()
     {
+        if (NameSortingMode == SortingMode.Descending)
+        {
+            NameSortingMode = SortingMode.Ascending;
+            DisplayPatients = DisplayPatients.OrderBy(x => x.FirstName).ThenBy(x => x.LastName).ToList();
+        }
+        else if (NameSortingMode == SortingMode.Ascending)
+        {
+            NameSortingMode = SortingMode.Descending;
+            DisplayPatients = DisplayPatients.OrderByDescending(x => x.FirstName).ThenByDescending(x => x.LastName).ToList();
+        }
+        paginator_CurrentPage = 1;
+        PaginatorChanged();
     }
     private void SortByDate()
     {
+        if (DateSortingMode == SortingMode.Descending)
+        {
+            DateSortingMode = SortingMode.Ascending;
+            DisplayPatients = DisplayPatients.OrderBy(x => x.DateAdded).ToList();
+        }
+        else if (DateSortingMode == SortingMode.Ascending)
+        {
+            DateSortingMode = SortingMode.Descending;
+            DisplayPatients = DisplayPatients.OrderByDescending(x => x.DateAdded).ToList();
+        }
+        paginator_CurrentPage = 1;
+        PaginatorChanged();
     }
     private void SortByDoctor()
     {
-
+        if (DoctorSortingMode == SortingMode.Descending)
+        {
+            DoctorSortingMode = SortingMode.Ascending;
+            DisplayPatients = DisplayPatients.OrderBy(x => x.DoctorFirstName).ToList();
+        }
+        else if (DoctorSortingMode == SortingMode.Ascending)
+        {
+            DoctorSortingMode = SortingMode.Descending;
+            DisplayPatients = DisplayPatients.OrderByDescending(x => x.DoctorFirstName).ToList();
+        }
+        paginator_CurrentPage = 1;
+        PaginatorChanged();
     }
+
     private void HandleNameFiltered(ChangeEventArgs args)
     {
 
-        //TODO
-        // try
-        // {
+        try
+        {
 
-        //     NameFilter = args.Value.ToString();
-        //     ApplyAllFilters();
+            PatientNameFilter = args.Value.ToString();
+            ApplyAllFilters();
 
-        // }
-        // catch (Exception ex)
-        // {
+        }
+        catch (Exception )
+        {
 
-        // }
+        }
+    }
+
+
+    public void PaginatorChanged()
+    {
+        if (paginator_EntriesPerPage == 0)
+        {
+            paginator_EntriesPerPage = 1;
+        }
+        paginator_TotalRows = DisplayPatients.Count;
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                              + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
+        paginator_StringRange = $"{(paginator_CurrentPage - 1) * paginator_EntriesPerPage + 1} to {Math.Min(paginator_CurrentPage * paginator_EntriesPerPage, paginator_TotalRows)}";
+
+        selectedRow = -1;
+
+        _jsRuntime.InvokeVoidAsync("adjustFooterPosition");
+
+        StateHasChanged();
 
     }
+
+
+    private void ApplyAllFilters()
+    {
+        string[] nameWords = PatientNameFilter.ToLower().Trim().Split(new char[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+        DisplayPatients = OriginalPatients.Where
+        (pat =>
+
+
+            ( nameWords.All(word => pat.FirstName.ToLower().Trim().Contains(word) || pat.LastName.ToLower().Trim().Contains(word)) )     // Name Filter -> any or 'words' in FirstName or LastName
+
+            &&
+            (
+                FilteredDoctors.Any(doc => doc.FirstName.Trim().ToLower() == pat.DoctorFirstName.ToLower().Trim() ||   // If we Filtered by Doctors
+                                            doc.LastName.Trim().ToLower() == pat.DoctorLastName.ToLower().Trim()
+             )
+
+
+            ) 
+            &&
+            (pat.DateAdded >= FromDateFilter && pat.DateAdded <= ToDateFilter)  // Date Range 
+
+         ).ToList();
+
+        DateSortingMode = SortingMode.Ascending;
+        SortByDate();
+    }
+
+
+
+
+
+
+
+
+
+
+
     public void PaginatorFirst()
     {
+        if(paginator_EntriesPerPage == 0 ) { paginator_EntriesPerPage = 10; }
+        if (paginator_CurrentPage > paginator_PagesNumber) {
+            paginator_CurrentPage = 1;
+        }
+
+
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                           + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        paginator_CurrentPage = 1;
+        FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
+        PaginatorChanged();
     }
     public void PaginatorPrevious()
     {
+        if (paginator_EntriesPerPage == 0) { paginator_EntriesPerPage = 10; }
+        if (paginator_CurrentPage > paginator_PagesNumber) {
+            paginator_CurrentPage = 1;
+        }
+
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                           + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        if (paginator_CurrentPage > 1)
+        {
+            paginator_CurrentPage--;
+            FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
+        }
+        PaginatorChanged();
     }
     public void PaginatorNext()
     {
+        if (paginator_EntriesPerPage == 0) { paginator_EntriesPerPage = 10; }
+        if (paginator_CurrentPage > paginator_PagesNumber) {
+            paginator_CurrentPage = 1;
+        }
+
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                           + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        if (paginator_CurrentPage < paginator_PagesNumber)
+        {
+            paginator_CurrentPage++;
+            FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
+        }
+        PaginatorChanged();
     }
     public void PaginatorLast()
     {
+        if (paginator_EntriesPerPage == 0) { paginator_EntriesPerPage = 10; }
+        if (paginator_CurrentPage > paginator_PagesNumber) {
+            paginator_CurrentPage = 1;
+        }
+
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                           + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        paginator_CurrentPage = paginator_PagesNumber;
+        FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
+        PaginatorChanged();
+    }
+
+
+    private void HandleInputChange_Entries(ChangeEventArgs args)
+    {
+        try
+        {
+            int inputValue = Convert.ToInt32(args.Value);
+            if (inputValue < 1)
+            {
+                inputValue = 1;
+            }
+            if (inputValue > paginator_TotalRows)
+            {
+                inputValue = paginator_TotalRows;
+            }
+            paginator_EntriesPerPage = inputValue;
+            paginator_CurrentPage = 1;
+            PaginatorChanged();
+        }
+        catch (Exception )
+        {
+
+        }
     }
 
 
     private void HandleInputChange_Pages(ChangeEventArgs args)
     {
+        try
+        {
+            int inputValue = Convert.ToInt32(args.Value);
+            if (inputValue < 1)
+            {
+                inputValue = 1;
+            }
+            if (inputValue > paginator_PagesNumber)
+            {
+                inputValue = paginator_PagesNumber;
+            }
+            paginator_CurrentPage = inputValue;
+            PaginatorChanged();
+        }
+        catch (Exception )
+        {
 
+        }
     }
-    private void HandleInputChange_Entries(ChangeEventArgs args)
+
+
+
+
+
+
+
+
+
+
+
+    public void ShowPatient(int PatientId)
     {
+        _navigationManager.NavigateTo($"/view-patient/{PatientId}");
+    }
+    public void ShowVideo(int PatientId)
+    {
+        _navigationManager.NavigateTo($"/view-video/{PatientId}");
+    }
+    public void ShowStl(int PatientId)
+    {
+        _navigationManager.NavigateTo($"/view-stl/{PatientId}");
     }
 
-
-
-
-
+    public void ShowPdf(int PatientId)
+    {
+        _navigationManager.NavigateTo($"/view-pdf/{PatientId}");
+    }
 
 
     protected async Task NavigateToAddPatient()

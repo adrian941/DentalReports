@@ -1,5 +1,6 @@
 using Blazored.Modal;
 using DentalReports.Client;
+using DentalReports.Shared.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -16,5 +17,9 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 
 builder.Services.AddApiAuthorization();
 builder.Services.AddBlazoredModal();
+
+builder.Services.AddScoped<IDoctorService,DoctorService>();
+
+
 
 await builder.Build().RunAsync();

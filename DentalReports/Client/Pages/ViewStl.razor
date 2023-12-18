@@ -1,46 +1,179 @@
-﻿@page "/view-stl"
-@attribute [Authorize]
+﻿@page "/view-stl/{id}"
+@inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
-@inject NavigationManager _navigationManager
+@using Microsoft.AspNetCore.Components
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+@inject IJSRuntime jsInterop
 
 
-<h3>View Stl</h3>
+
+@inject NavigationManager navigationManager
+
+<head>
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/stl.css">
+
+</head>
+
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const header = document.getElementById("header");
         header.style.display = "none";
     });
 </script>
+<script>
+    function emptyCacheAndReload() {
+        -buttonthen(function (cacheNames) {
+            cacheNames.forEach(function (cacheName) {
+                caches.delete(cacheName);
+            });
+        });
+        window.location.reload(true);
+    }
+</script>
+<div class="megagen-upper-btns-container fixed">
+    <button class="pdf-button button-35w" @onclick="OpenPdf"></button>
+    <button class="video-button button-35w" @onclick="OpenVideo"></button>
+    <button class="menu-button button-35w" @onclick="OpenMenu"></button>
+    <button class="refresh-button button-35w" @onclick="Refresh"></button>
+</div>
+<canvas class="webgl"
+        style="width:95%;height:95vh; ">
+</canvas>
+
 
 @code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    DisplayPatient displayPatient = new DisplayPatient();
+  
+    bool displayPatientLoaded = false;
+    bool afterRenderLoaded = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+       
+        var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+
+
+
+
+        if (role == RolesMegagen.Technician)
+            displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+        if (role == RolesMegagen.Doctor)
+            displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+
+        displayPatientLoaded = true;
+
+
+
+
+
+    }
     protected override void OnInitialized()
     {
 
         base.OnInitialized();
-        _navigationManager.LocationChanged += HandleLocationChanged!;
+        navigationManager.LocationChanged += HandleLocationChanged!;
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    private void OpenPdf()
     {
-        if (firstRender)
-        {
-            HideHeader();
-        }
+        navigationManager.NavigateTo($"view-pdf/{Id}");
     }
-    private void HideHeader()
+    private void OpenVideo()
     {
-     
-        _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'none';");
+        navigationManager.NavigateTo($"view-video/{Id}");
+    }
+    private void OpenMenu()
+    {
+        navigationManager.NavigateTo($"/");
+    }
+    private async Task Refresh()
+    {
+        await _jsRuntime.InvokeVoidAsync("location.reload");
     }
 
     private void HandleLocationChanged(object sender, LocationChangedEventArgs args)
     {
         if (!args.Location.Contains("view-stl"))
         {
+            _jsRuntime.InvokeVoidAsync("destroy");
+          
             _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'flex';");
-            Console.WriteLine("Location changed");
+           
 
         }
+    }
+
+    private void HideHeader()
+    {
+
+        _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'none';");
+    }
+
+    List<string> files = new List<string>();
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+
+
+        if (firstRender)
+        {
+            HideHeader();
+            try
+            {
+                
+                var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+                string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+
+             
+                
+                if (role == RolesMegagen.Technician)
+                    displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+                if (role == RolesMegagen.Doctor)
+                    displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+
+                displayPatientLoaded = true;
+
+
+                await DoThings();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
+
+
+
+        afterRenderLoaded = true;
+    }
+
+    public async Task DoThings()
+    {
+
+
+        string jsonFileLink = displayPatient.Files.Where(f => f.Name.Trim().ToLower().EndsWith(".json")).First().Name;
+        string azureJsonFileLink = await _httpClient.GetStringAsync($"/api/Storage/getFileLink/{jsonFileLink}");
+        files.Add(azureJsonFileLink);
+        string[] stlFilesLinks = displayPatient.Files.Where(f => f.Name.Trim().ToLower().EndsWith(".stl")).Select(f => f.Name).ToArray();
+        foreach (string stlFileLink in stlFilesLinks)
+        {
+            string azureLink = await _httpClient.GetStringAsync($"/api/Storage/getFileLink/{stlFileLink}");
+            files.Add(azureLink);
+        }
+
+        await _jsRuntime.InvokeVoidAsync("initialize3DViewer", (object)(files.ToArray()));
     }
 
 

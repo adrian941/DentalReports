@@ -14,7 +14,6 @@ public class PatientFile
     [Required]
     [MaxLength(150)]
     public string Name { get; set; } = string.Empty;
-
     public long sizeBytes { get; set; } = 0;
 
 }

@@ -1,0 +1,69 @@
+﻿
+
+<EditForm Model="dates" OnValidSubmit="HandleValidSubmit">
+
+    <div class="form-group">
+        <label for="dates.FromDate">From Date</label>
+        <InputDate id="FromDate" class="form-control" @bind-Value="dates.FromDate" />
+    </div>
+    <div class="form-group">
+        <label for="dates.ToDate">To Date</label>
+        <InputDate id="ToDate" class="form-control" @bind-Value="dates.ToDate" />
+    </div>
+    <br />
+    <div class="form-group">
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+</EditForm>
+
+
+@code {
+    private Dates dates = new Dates();
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    [Parameter] public DateTime FromDate { get; set; }
+    [Parameter] public DateTime ToDate { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (FromDate == DateTime.MinValue)
+        {
+            dates.FromDate = DateTime.Now.AddMonths(-1);
+        }
+        else
+        {
+            dates.FromDate = FromDate;
+        }
+
+        if (ToDate == DateTime.MaxValue)
+        {
+            dates.ToDate = DateTime.Now;
+        }
+        else
+        {
+            dates.ToDate = ToDate;
+        }
+
+
+
+
+    }
+    private async void HandleValidSubmit()
+    {
+        try
+        {
+
+            await ModalInstance?.CloseAsync(ModalResult.Ok(dates));
+            await ModalInstance?.CancelAsync()!;
+
+        }
+        catch (Exception)
+        {
+            await ModalInstance?.CancelAsync()!;
+        }
+
+    }
+
+
+
+}

@@ -4,37 +4,37 @@
 @inject HttpClient _httpClient
 
 
-<EditForm Model="displayPatient" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="displayAddPatient" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
 
     <div class="form-group">
         <label for="selectDoctor">Select Doctor:</label>
-        <InputSelect id="selectDoctor" @bind-Value="displayPatient.SelectedDoctorId" class="form-control">
+        <InputSelect id="selectDoctor" @bind-Value="displayAddPatient.SelectedDoctorId" class="form-control">
             <option value="0"> Choose a Doctor...</option>
-            @foreach (var doctor in displayPatient.Doctors)
+            @foreach (var doctor in displayAddPatient.Doctors)
             {
                 <option value="@doctor.Id">@doctor.FirstName @doctor.LastName (@doctor.Email)</option>
             }
         </InputSelect>
-        <ValidationMessage For="@(() => displayPatient.SelectedDoctorId)" class="text-danger" />
+        <ValidationMessage For="@(() => displayAddPatient.SelectedDoctorId)" class="text-danger" />
     </div><br />
 
     <div class="form-group">
         <label for="FirstName">Patient's First Name:</label>
-        <InputText @bind-Value="displayPatient.FirstName" id="FirstName" class="form-control" placeholder="John" />
-        <ValidationMessage For="@(() => displayPatient.FirstName)" class="text-danger" />
+        <InputText @bind-Value="displayAddPatient.FirstName" id="FirstName" class="form-control" placeholder="John" />
+        <ValidationMessage For="@(() => displayAddPatient.FirstName)" class="text-danger" />
     </div>
 
     <div class="form-group">
         <label for="LastName">Patient's Last Name:</label>
-        <InputText @bind-Value="displayPatient.LastName" id="LastName" class="form-control" placeholder="Doe" />
-        <ValidationMessage For="@(() => displayPatient.LastName)" class="text-danger" />
+        <InputText @bind-Value="displayAddPatient.LastName" id="LastName" class="form-control" placeholder="Doe" />
+        <ValidationMessage For="@(() => displayAddPatient.LastName)" class="text-danger" />
     </div>   <br>
 
     <div class="form-group">
         <label for="DateAdded">Date Added in Laboratory:</label> <br>
-        <InputDate @bind-Value="displayPatient.DateAdded" class="form-control" />
-        <ValidationMessage For="@(() => displayPatient.DateAdded)" class="text-danger" />
+        <InputDate @bind-Value="displayAddPatient.DateAdded" class="form-control" />
+        <ValidationMessage For="@(() => displayAddPatient.DateAdded)" class="text-danger" />
 
 
     </div>   <br>
@@ -64,7 +64,7 @@
 
 
 
-    private DisplayPatient displayPatient = new DisplayPatient();
+    private DisplayAddPatient displayAddPatient = new DisplayAddPatient();
     [CascadingParameter] public BlazoredModalInstance ModalInstance { get; set; }
     private string FileErrors = "";
 
@@ -77,7 +77,7 @@
 
         if (!AreFilesValid)
         {
-            displayPatient.FileCount = 0;
+            displayAddPatient.FileCount = 0;
             formData = new MultipartFormDataContent();
             return;
         }
@@ -85,7 +85,7 @@
 
 
         formData = new MultipartFormDataContent();
-        displayPatient.FileCount = e.FileCount;
+        displayAddPatient.FileCount = e.FileCount;
 
 
         foreach (IBrowserFile file in e.GetMultipleFiles(20))
@@ -107,7 +107,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        displayPatient.Doctors = ( await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("/api/Technician/GetDoctors") )!;
+        displayAddPatient.Doctors = ( await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("/api/Technician/GetDoctors") )!;
     }
 
     private async Task HandleValidSubmit()
@@ -118,7 +118,7 @@
         }
         FileErrors = "Uploading files ... ";
 
-        string patientJson = JsonSerializer.Serialize(displayPatient);
+        string patientJson = JsonSerializer.Serialize(displayAddPatient);
    
  
         formData.Add(new StringContent(patientJson, Encoding.UTF8, "application/json"), "patientJson");

@@ -62,17 +62,17 @@ public class TechnicianController : ControllerBase
     public async Task<ActionResult> AddDoctor(DisplayDoctor displayDoctor)
     {
         string Email = displayDoctor.Email!;
-        ApplicationUser? doctorUser = _userManager.FindByEmailAsync(Email).Result;
+        ApplicationUser? requestedUser = _userManager.FindByEmailAsync(Email).Result;
         ApplicationUser? currentLoggedUser = await _userManager.GetUserAsync(User);
         Technician? currentTechnician = _dbContext.Technicians
                 .Where(t => t.Email == currentLoggedUser!.Email)
                 .FirstOrDefault();
 
-        if (doctorUser == null)
+        if (requestedUser == null)
         {
-            return BadRequest($"Doctor with email {Email} does not exist");
+            return BadRequest($"User '{Email}' does not exist");
         }
-        List<string> roles = (await _userManager.GetRolesAsync(doctorUser)).ToList();
+        List<string> roles = (await _userManager.GetRolesAsync(requestedUser)).ToList();
 
         if (roles.Contains(RolesMegagen.Admin))
         {
@@ -85,32 +85,29 @@ public class TechnicianController : ControllerBase
         }
 
 
-        await _userManager.AddToRoleAsync(doctorUser, RolesMegagen.Doctor);
-        Doctor newDoctor = new Doctor
-        {
-            Email = doctorUser.Email!
-        };
+        await _userManager.AddToRoleAsync(requestedUser, RolesMegagen.Doctor);
+ 
 
-        currentTechnician!.Doctors.Add(newDoctor);
+        Doctor doctor = await _dbContext.Doctors
+                        .Where(d => d.Email == requestedUser.Email)
+                        .FirstOrDefaultAsync() 
+                        ?? 
+                        new Doctor
+                        {
+                            Email = requestedUser.Email!,
+                        };
+        if (currentTechnician.Doctors.Contains(doctor))
+        {
+            return BadRequest($"Doctor {requestedUser.FirstName} {requestedUser.LastName} already exists in your Doctor list!");
+        }
+        
+        currentTechnician!.Doctors.Add(doctor);
         await _dbContext.SaveChangesAsync();
 
-        return Ok($"Doctor {doctorUser.FirstName} {doctorUser.LastName} added to your Doctor list!");
+        return Ok($"Doctor {requestedUser.FirstName} {requestedUser.LastName} added to your Doctor list!");
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     [HttpPost]
     public async Task<ActionResult> AddPatient([FromForm] List<IFormFile> files, [FromForm] string patientJson)
     {
@@ -120,12 +117,12 @@ public class TechnicianController : ControllerBase
             return BadRequest("Controller: " + FileErrors);
         }
 
-        DisplayPatient displayPatient = JsonSerializer.Deserialize<DisplayPatient>(patientJson)!;
+        DisplayAddPatient displayAddPatient = JsonSerializer.Deserialize<DisplayAddPatient>(patientJson)!;
            
         ApplicationUser currentUser = ( await _userManager.GetUserAsync(User) )!;
 
         Technician? currentTechnician = _dbContext.Technicians.Where(t => t.Email.ToUpper().Trim() == currentUser.Email!.ToUpper().Trim()).FirstOrDefault();
-        int doctorId = displayPatient.SelectedDoctorId;
+        int doctorId = displayAddPatient.SelectedDoctorId;
         Doctor doctor = (await _dbContext.Doctors.Where(d => (d.Id == doctorId)).FirstOrDefaultAsync() )!;
         if (doctor == null)
         {
@@ -136,11 +133,11 @@ public class TechnicianController : ControllerBase
         {
             return BadRequest($"Invalid Doctor !!");
         }
-        bool patientExists = await _dbContext.Patients.AnyAsync(p => (p.TechnicianId == currentTechnician.Id && p.DoctorId == displayPatient.SelectedDoctorId && p.DateAdded == displayPatient.DateAdded && p.FirstName == displayPatient.FirstName
-                                  && p.LastName == displayPatient.LastName));
+        bool patientExists = await _dbContext.Patients.AnyAsync(p => (p.TechnicianId == currentTechnician.Id && p.DoctorId == displayAddPatient.SelectedDoctorId && p.DateAdded == displayAddPatient.DateAdded && p.FirstName == displayAddPatient.FirstName
+                                  && p.LastName == displayAddPatient.LastName));
         if (patientExists)
         {
-            return BadRequest($"Patient {displayPatient.FirstName} {displayPatient.LastName} already exists at this Date!");
+            return BadRequest($"Patient {displayAddPatient.FirstName} {displayAddPatient.LastName} already exists at this Date!");
         }
 
 
@@ -150,7 +147,7 @@ public class TechnicianController : ControllerBase
         {
             lastPatientId = _dbContext.Patients.OrderByDescending(p => p.Id).Select(p => p.Id).FirstOrDefault();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
 
         }
@@ -178,10 +175,10 @@ public class TechnicianController : ControllerBase
         Patient patient = new Patient
         {
             TechnicianId = currentTechnician.Id,
-            DoctorId = displayPatient.SelectedDoctorId,
-            FirstName = displayPatient.FirstName,
-            LastName = displayPatient.LastName,
-            DateAdded = displayPatient.DateAdded,
+            DoctorId = displayAddPatient.SelectedDoctorId,
+            FirstName = displayAddPatient.FirstName,
+            LastName = displayAddPatient.LastName,
+            DateAdded = displayAddPatient.DateAdded,
             PatientFiles = newFileNames.Select(newFileName => new PatientFile { Name = newFileName.FileName ,sizeBytes=newFileName.sizeBytes }).ToList(),
             
         };
@@ -189,7 +186,7 @@ public class TechnicianController : ControllerBase
         {
             await _dbContext.Patients.AddAsync(patient);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return BadRequest("Same Patient at same Date. Already Added!");
         }
@@ -220,6 +217,155 @@ public class TechnicianController : ControllerBase
 
     }
 
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayPatient>>> getPatients()
+    {
+        List<DisplayPatient> displayPatients = new List<DisplayPatient>();
+
+        ApplicationUser currentTechnicianUser = ( await _userManager.GetUserAsync(User) )!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
+        string technicianFirstName = currentTechnicianUser.FirstName;
+        string technicianLastName = currentTechnicianUser.LastName;
+        List<Patient> patients = _dbContext.Patients.Where(p => p.TechnicianId == currentTechnician.Id).ToList();
+
+        foreach (Patient patient in patients)
+        {
+            Doctor doctor = _dbContext.Doctors.FirstOrDefault(d => d.Id == patient.DoctorId)!;
+            ApplicationUser doctorUser = _dbContext.Users.FirstOrDefault(u => u.Email == doctor.Email)!;
+
+            string doctorFirstName = doctorUser.FirstName;
+            string doctorLastName = doctorUser.LastName;
+
+            DateTime DateAdded = patient.DateAdded;
+            List<DisplayPatientFile> files = patient.PatientFiles.Select(pf => new DisplayPatientFile
+            {
+                Id = pf.Id,
+                Name = pf.Name,
+                SizeBytes = pf.sizeBytes
+            }).ToList();
+
+            displayPatients.Add( new DisplayPatient
+            {
+                Id = patient.Id,
+                TechnicianFirstName = technicianFirstName,
+                TechnicianLastName = technicianLastName,
+                DoctorFirstName = doctorFirstName,
+                DoctorLastName = doctorLastName,
+                FirstName = patient.FirstName,
+                LastName = patient.LastName,
+                DateAdded = DateAdded,
+                Files = files
+            });
+
+        }
+        return Ok(displayPatients);    
+
+    }
+
+
+
+    [HttpGet]
+    [Route("/api/technician/getPatient/{PatientId}")]
+    public async Task<ActionResult<DisplayPatient>> getPatient(int PatientId)
+    {
+
+        Patient? patient = _dbContext.Patients.Where(p => p.Id == PatientId).FirstOrDefault() ;
+        if (patient == null)
+        {
+            return BadRequest("Invalid Patient Id!");
+        }
+ 
+        ApplicationUser currentTechnicianUser = (await _userManager.GetUserAsync(User))!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
+
+        if(!currentTechnician.Patients.Contains(patient))
+        {
+            return BadRequest("Invalid Patient Id!");
+        }
+
+
+        Doctor doctor = _dbContext.Doctors.FirstOrDefault(d => d.Id == patient.DoctorId)!;
+        ApplicationUser doctorUser = _dbContext.Users.FirstOrDefault(u => u.Email == doctor.Email)!;
+
+
+        string technicianFirstName = currentTechnicianUser.FirstName;
+        string technicianLastName = currentTechnicianUser.LastName;
+        string doctorFirstName = doctorUser.FirstName;
+        string doctorLastName = doctorUser.LastName;
+     
+        DateTime DateAdded = patient.DateAdded;
+            List<DisplayPatientFile> files = patient.PatientFiles.Select(pf => new DisplayPatientFile
+            {
+                Id = pf.Id,
+                Name = pf.Name,
+                SizeBytes = pf.sizeBytes
+            }).ToList();
+
+        DisplayPatient displayPatient = new DisplayPatient
+            {
+                Id = patient.Id,
+                TechnicianFirstName = technicianFirstName,
+                TechnicianLastName = technicianLastName,
+                DoctorFirstName = doctorFirstName,
+                DoctorLastName = doctorLastName,
+                FirstName = patient.FirstName,
+                LastName = patient.LastName,
+                DateAdded = DateAdded,
+                Files = files
+            };
+
+     
+        return Ok(displayPatient);
+
+
+ 
+
+    }
+
+
+    //getPatient
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayDoctor>>> getDoctors()
+    {
+        List<DisplayDoctor> displayDoctors = new List<DisplayDoctor>(); 
+
+        ApplicationUser currentTechnicianUser = ( await _userManager.GetUserAsync(User) )!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
+
+        List<Doctor> doctors = currentTechnician.Doctors.ToList();
+
+        foreach (Doctor doctor in doctors)
+        {
+            ApplicationUser doctorUser = _dbContext.Users.FirstOrDefault(u => u.Email == doctor.Email)!;
+            string doctorFirstName = doctorUser.FirstName;
+            string doctorLastName = doctorUser.LastName;
+            
+
+            displayDoctors.Add(new DisplayDoctor
+            {
+                FirstName = doctorFirstName,
+                LastName = doctorLastName,
+                Email = doctor.Email,
+                Id = doctor.Id
+            });
+        }
+
+        return Ok(displayDoctors);
+    }
 
 
 
@@ -236,43 +382,7 @@ public class TechnicianController : ControllerBase
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private bool areFilesValid(List<IFormFile> files)
+        private bool areFilesValid(List<IFormFile> files)
     {
 
         int maxAllowedFiles = 20;
@@ -362,7 +472,6 @@ public class TechnicianController : ControllerBase
 
         return true;
     }
-
     public class SendFileModel
     {
        public string FileName { get; set; } = string.Empty;
