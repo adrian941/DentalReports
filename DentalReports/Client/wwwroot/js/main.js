@@ -56,7 +56,7 @@ async function init() {
 	controls.setGizmosVisible(false);
 	const matCraniu = new THREE.MeshPhongMaterial({
 		color: 0xffffff,
-		opacity: 0.12,
+		opacity: 0.06,
 		transparent: true,
 		shininess: 0.1,
 		specular: 0x000000,
@@ -280,11 +280,11 @@ async function init() {
 				return matImplant;
 
 			case "matCapa":
-				createGuiElement('Capa', matCapa);
+				createGuiElement('Cap', matCapa);
 				return matCapa;
 
 			case "matCraniu":
-				createGuiElement('Craniu', matCraniu);
+				createGuiElement('CBCT', matCraniu);
 				return matCraniu;
 
 			case "matAntagonist":
@@ -296,11 +296,11 @@ async function init() {
 				return matWaxUp;
 
 			case "matSurub":
-				createGuiElement('Surub', matSurub);
+				createGuiElement('Screw', matSurub);
 				return matSurub;
 
 			case "matGingie":
-				createGuiElement('Gingie', matGingie);
+				createGuiElement('Gingiva', matGingie);
 				return matGingie;
 
 

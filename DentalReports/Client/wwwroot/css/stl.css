@@ -1,4 +1,8 @@
-﻿.container-gui {
+﻿body {
+    background-color: #20204D;
+}
+
+.container-gui {
     margin-top: 5px;
     width: 180px;
     position: fixed;
