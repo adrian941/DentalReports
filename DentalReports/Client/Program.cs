@@ -22,4 +22,6 @@ builder.Services.AddScoped<IDoctorService,DoctorService>();
 
 
 
+
+
 await builder.Build().RunAsync();

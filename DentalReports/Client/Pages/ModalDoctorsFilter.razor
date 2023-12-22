@@ -3,7 +3,7 @@
 <EditForm Model="OriginalDoctors" OnValidSubmit="HandleValidSubmit">
     <div class="form-group">
 
-        @foreach (var doctorViewModel in Doctors)
+        @foreach (var doctorViewModel in DisplayDoctors)
         {
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="@($"checkbox_{doctorViewModel.Doctor.Id}")" @bind="doctorViewModel.IsChecked" />
@@ -28,21 +28,21 @@
     [Parameter] public List<DisplayDoctor> OriginalDoctors { get; set; }
     public List<DisplayDoctor> FilteredDoctors = new List<DisplayDoctor>();
 
-    public List<DisplayDoctorViewModel> Doctors { get; set; } = new List<DisplayDoctorViewModel>();
+    public List<DisplayDoctorViewModel> DisplayDoctors { get; set; } = new List<DisplayDoctorViewModel>();
 
     protected override async Task OnInitializedAsync()
     {
         FilteredDoctors = OriginalDoctors;
         foreach (var Doctor in OriginalDoctors)
         {
-            Doctors.Add(new DisplayDoctorViewModel { Doctor = Doctor, IsChecked = false });
+            DisplayDoctors.Add(new DisplayDoctorViewModel { Doctor = Doctor, IsChecked = false });
         }
 
     }
 
     private async void HandleValidSubmit()
     {
-        FilteredDoctors = Doctors.Where(x => x.IsChecked).Select(x => x.Doctor).ToList();
+        FilteredDoctors = DisplayDoctors.Where(x => x.IsChecked).Select(x => x.Doctor).ToList();
         await ModalInstance.CloseAsync(ModalResult.Ok(FilteredDoctors));
         await ModalInstance.CancelAsync();
     }

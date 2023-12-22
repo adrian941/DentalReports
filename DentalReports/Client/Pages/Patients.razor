@@ -24,7 +24,7 @@
                         <th>
                             <div class="modal-filter">
                                 <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
-                                <button @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
+                                <button  @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
                             </div>
                             <div class="meg-sub-filter-space"></div>
                             <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
@@ -32,9 +32,9 @@
 
                         @* Header for PATIENTS *@
                         <th>
-                            <input type="text" @oninput="HandleNameFiltered" class="filter font-size-10" placeholder="search patients"></input>
+                            <input type="text" @oninput="HandleNameFiltered" class="modal-filter font-size-10" placeholder="search patients"></input>
                             <div class="meg-sub-filter-space"></div>
-                            <span @onclick="SortByName" class="meg-table-header">Name <b>↑↓</b></span>
+                            <span  @onclick="SortByName" class="meg-table-header">Name <b>↑↓</b></span>
                         </th>
 
                         @* Header for DATE *@
@@ -480,12 +480,13 @@
         (pat =>
 
 
-            ( nameWords.All(word => pat.FirstName.ToLower().Trim().Contains(word) || pat.LastName.ToLower().Trim().Contains(word)) )     // Name Filter -> any or 'words' in FirstName or LastName
+            ( nameWords.All(word => pat.FirstName.ToLower().Trim().Contains(word) || 
+                                    pat.LastName.ToLower().Trim().Contains(word)) )     // Name Filter -> any or 'words' in FirstName or LastName
 
             &&
             (
-                FilteredDoctors.Any(doc => doc.FirstName.Trim().ToLower() == pat.DoctorFirstName.ToLower().Trim() ||   // If we Filtered by Doctors
-                                            doc.LastName.Trim().ToLower() == pat.DoctorLastName.ToLower().Trim()
+                FilteredDoctors.Any(doc => doc.FirstName!.Trim().ToLower() == pat.DoctorFirstName.ToLower().Trim() &&   // If we Filtered by Doctors
+                                            doc.LastName!.Trim().ToLower() == pat.DoctorLastName.ToLower().Trim()
              )
 
 
