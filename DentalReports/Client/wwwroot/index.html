@@ -19,6 +19,8 @@
     <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
 
     <link href="_content/Blazored.Modal/blazored-modal.css" rel="stylesheet" />
+
+   
 </head>
 
 <body style="overflow:hidden!important;">
@@ -74,7 +76,49 @@
     <script src="js/three/build/three.min.js"></script>
     <script src="js/three/examples/js/controls/ArcballControls.js"></script>
     <script src="js/three/examples/js/loaders/STLLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js" async></script>
+    <script>
+        function refreshVideoJs() {
+            var video = document.getElementById('myVideo');
+            if (video) {
+                video.load();
+            }
+        }
+    </script>
+    <script>
+        function seekToJs(totalSeconds) {
+            console.log("seek to::: " + totalSeconds )
+            var video = document.getElementById('myVideo');
+            video.currentTime = totalSeconds;
+        }
+    </script>
+    <script>
+        const openMegagenPdf = function (PdfSource) {
+            pdfjsLib.getDocument(PdfSource).promise.then(function (pdfDoc) {
+                var container = document.getElementById("pdfViewer");
+                for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
+                    pdfDoc.getPage(pageNumber).then(function (page) {
+                        var canvasContainer = document.createElement("div");
+                        canvasContainer.className = "canvas-container";
 
+                        var canvas = document.createElement("canvas");
+                        canvas.className = "canvas";
+                        var context = canvas.getContext("2d");
+
+                        var viewport = page.getViewport({ scale: 1.5 });
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+
+                        page.render({ canvasContext: context, viewport: viewport });
+
+                        canvasContainer.appendChild(canvas);
+                        container.appendChild(canvasContainer);
+                    });
+                }
+            });
+        }
+        window.openMegagenPdf = openMegagenPdf;
+    </script>
 
 
 

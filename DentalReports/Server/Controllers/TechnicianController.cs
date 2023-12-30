@@ -244,6 +244,10 @@ public class TechnicianController : ControllerBase
                 SizeBytes = pf.sizeBytes
             }).ToList();
 
+            long totalFilesSizesBytes = patient.PatientFiles.Sum(pf => pf.sizeBytes);
+            //get total size of files in MB (two decimals)
+            double totalFilesSizesMB= Math.Round((double)totalFilesSizesBytes / (1024 * 1024), 1);
+
             displayPatients.Add( new DisplayPatient
             {
                 Id = patient.Id,
@@ -254,7 +258,9 @@ public class TechnicianController : ControllerBase
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateAdded = DateAdded,
-                Files = files
+                Files = files,
+                TotalFilesSizesMB = totalFilesSizesMB
+
             });
 
         }
@@ -263,8 +269,47 @@ public class TechnicianController : ControllerBase
     }
 
 
+    [HttpDelete]
+    [Route("/api/technician/deletePatient/{PatientId}")]
+    public async Task<ActionResult<DisplayPatient>> deletePatient(int PatientId)
+    {
+        Patient? patient = _dbContext.Patients.Where(p => p.Id == PatientId).FirstOrDefault();
+        if (patient == null)
+        {
+            return BadRequest("Invalid Patient Id!");
+        }
+        ApplicationUser currentTechnicianUser = (await _userManager.GetUserAsync(User))!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
 
-    [HttpGet]
+        if (!currentTechnician.Patients.Contains(patient))
+        {
+            return BadRequest("Invalid Patient Id!");
+        }
+
+        _dbContext.Patients.Remove(patient);
+        
+
+        // delete files from azure
+        string azureConnString = _config.GetConnectionString("AzureStorage")!;
+        string containerName = _config.GetValue<string>("AzureContainerName")!;
+        foreach (var file in patient.PatientFiles)
+        {
+            string blobName = file.Name;
+            var blobClient = new BlobClient(azureConnString, containerName, blobName);
+
+            await blobClient.DeleteIfExistsAsync();
+        }
+        
+        await _dbContext.SaveChangesAsync();
+        return Ok("Patient Deleted!");
+
+
+
+
+
+    }
+
+        [HttpGet]
     [Route("/api/technician/getPatient/{PatientId}")]
     public async Task<ActionResult<DisplayPatient>> getPatient(int PatientId)
     {

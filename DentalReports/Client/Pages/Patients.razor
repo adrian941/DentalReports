@@ -20,15 +20,20 @@
             <table class="meg-table">
                 <thead>
                     <tr>
-                        @* Header for DOCTORS *@
-                        <th>
-                            <div class="modal-filter">
-                                <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
-                                <button  @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
-                            </div>
-                            <div class="meg-sub-filter-space"></div>
-                            <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
-                        </th>
+                   
+                        @if (role == RolesMegagen.Technician)
+                        {
+                            @* Header for DOCTORS *@
+                            <th>
+                                <div class="modal-filter">
+                                    <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
+                                    <button @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
+                                </div>
+                                <div class="meg-sub-filter-space"></div>
+                                <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
+                            </th>
+                        }
+                       
 
                         @* Header for PATIENTS *@
                         <th>
@@ -59,25 +64,56 @@
                         DisplayPatient patient = FilteredPatients[nr];
 
                         <tr @onclick="() => RowClicked(nr)" class="@(nr == selectedRow ? "meg-selected-row" : "meg-not-selected-row")">
-                            <td>@patient.DoctorFirstName @patient.DoctorLastName.ToUpper()</td>
+
+                            @if (role == RolesMegagen.Technician)
+                            {
+                                <td>@patient.DoctorFirstName @patient.DoctorLastName.ToUpper()</td>
+                            }
+
                             <td>@patient.FirstName @patient.LastName.ToUpper()</td>
                             <td>@patient.DateAdded.ToShortDateString()</td>
                         </tr>
 
                         if (nr == selectedRow)
                         {
-                            <tr>
-                                <td colspan="3" style="border:none;">
-                                    <div class="meg-bottom-row-container">
-                                        <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
-                                        <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
-                                        <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
+                           
+                            if (role == RolesMegagen.Technician)
+                            {
+                                <tr>
+                                    <td colspan="4" style="border:none;">
+                                        <div class="meg-bottom-row-container">
+                                            <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
+                                            <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
+                                            <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
 
-                                          @* <button>DELETE</button>  *@
-                                    </div>
-                                </td>
+                                            <div style="display:flex; align-items:center;gap:0px;">
+                                                <button @onclick="()=>ShowTrashModal(patient.Id)" class="trash-button"></button>
+                                                <span  @onclick="()=>ShowTrashModal(patient.Id)" style="color:white;font-size:8px;">@patient.TotalFilesSizesMB MB</span>
+                                            </div>
+                                        
 
-                            </tr>
+                                            @* <button>DELETE</button>  *@
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+                            else if (role == RolesMegagen.Doctor)
+                            {
+                                <tr>
+                                    <td colspan="3" style="border:none;">
+                                        <div class="meg-bottom-row-container">
+                                            <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
+                                            <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
+                                            <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
+
+                                            @* <button>DELETE</button>  *@
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+
 
                         }
                     }
@@ -135,9 +171,13 @@
 
                 </div>
             </div>
-            <div class="add-btn-container">
-                <button class="add-button" @onclick="NavigateToAddPatient"></button>
-            </div>
+            @if (role == RolesMegagen.Technician)
+            {
+                <div class="add-btn-container">
+                    <button class="add-button" @onclick="NavigateToAddPatient"></button>
+                </div>
+            }
+          
         </div>
 
 
@@ -237,14 +277,14 @@
     private DateTime ToDateFilter = DateTime.MaxValue;
 
 
+    private string role = "";
 
 
-
-    protected override async Task OnInitializedAsync()
+    protected override async void OnInitialized ()
     {
 
         var  User = _authenticationStateProvider.GetAuthenticationStateAsync().Result.User;
-        var role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value; //TODO : learn about Claims later
+        role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!; //TODO : learn about Claims later
 
         if(role == RolesMegagen.Technician)
         {
@@ -268,6 +308,7 @@
 
 
         InitPaginator();
+        StateHasChanged();
 
     }
     public void InitPaginator()
@@ -328,7 +369,7 @@
         {
             return;
         }
-        FilteredDoctors = ((List<DisplayDoctor>)(result.Data));
+        FilteredDoctors = ((List<DisplayDoctor>)(result.Data))!;
 
         if (FilteredDoctors.Count > 1)
         {
@@ -644,6 +685,52 @@
     {
         _navigationManager.NavigateTo($"/view-pdf/{PatientId}");
     }
+    public async void ShowTrashModal(int PatientId)
+    {
+         
+        ModalParameters parameters = new ModalParameters();
+        
+        parameters.Add( "PatientId" , PatientId);
+
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = false;
+
+        var modalWindow = _modal.Show<ModalTrash>("Delete confirmation!", parameters, options);
+        var result = await modalWindow.Result;
+
+        if (result.Cancelled)
+        {  
+            return;
+        }
+
+        // refresh displayPatient from API 
+
+        if (role == RolesMegagen.Technician)
+        {
+            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
+        }
+        else if (role == RolesMegagen.Doctor)
+        {
+            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
+        }
+        else
+        {
+            return; // Let just the default HTML messages to be displayed
+        }
+
+        FilteredPatients = OriginalPatients;
+        DisplayPatients = OriginalPatients;
+        FilteredDoctors = OriginalDoctors;
+
+        ApplyAllFilters();
+
+         
+ 
+
+ 
+   
+
+    }
 
 
     protected async Task NavigateToAddPatient()
@@ -655,6 +742,24 @@
         var modalWindows = _modal.Show<AddPatient>("Add new Patient", options);
         var result = await modalWindows.Result;
 
+         if (role == RolesMegagen.Technician)
+        {
+            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
+        }
+        else if (role == RolesMegagen.Doctor)
+        {
+            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
+        }
+        else
+        {
+            return;  
+        }
+
+        FilteredPatients = OriginalPatients;
+        DisplayPatients = OriginalPatients;
+        FilteredDoctors = OriginalDoctors;
+
+        ApplyAllFilters();
 
  
     }
@@ -669,4 +774,5 @@
         public const string Ascending = "Ascending";
         public const string Descending = "Descending";
     }
+    
 }

@@ -1,5 +1,97 @@
-﻿<h3>ViewPdf</h3>
+﻿@page "/view-pdf/{id}"
+@inject HttpClient _httpClient
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+<head>
+
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/pdf.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js" async></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+
+
+<div class="megagen-upper-btns-container fixed">
+    <button class="video-button button-35w button-black" @onclick="OpenVideo"></button>
+    <button class="stl-button button-35w button-black" @onclick="OpenStl"></button>
+    <button class="menu-button button-35w button-black " @onclick="OpenMenu"></button>
+</div>
+
+@if (@PdfSource != null)
+{
+    <div id="pdfViewer"></div>
+}
+
+
+
+
 
 @code {
+
+    [Parameter]
+    public string Id { get; set; }
+    DisplayPatient displayPatient = new DisplayPatient();
+    private string currentRole = "";
+
+    private string PdfSource = @"";
+
+
+
+
+
+
+
+    private void OpenStl()
+    {
+        _navigationManager.NavigateTo($"view-stl/{Id}");
+    }
+    private void OpenMenu()
+    {
+        _navigationManager.NavigateTo($"/");
+    }
+    private void OpenVideo()
+    {
+        _navigationManager.NavigateTo($"view-video/{Id}");
+    }
+
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+
+
+
+
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+            string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+
+            if (role == RolesMegagen.Technician)
+                displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+            if (role == RolesMegagen.Doctor)
+                displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+
+
+            string pdfFileName = displayPatient.Files.Where(f => f.Name.Trim().ToLower().EndsWith(".pdf")).First().Name;
+
+            PdfSource = await _httpClient.GetStringAsync($"/api/Storage/getFileLink/{pdfFileName}");
+
+            await _jsRuntime.InvokeVoidAsync("openMegagenPdf", PdfSource);
+        }
+    }
 
 }

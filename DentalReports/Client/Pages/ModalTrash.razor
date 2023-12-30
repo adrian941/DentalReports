@@ -1,0 +1,58 @@
+﻿@inject HttpClient _httpClient
+@inject IJSRuntime _jsRuntime
+@using Microsoft.AspNetCore.Components
+@inject AuthenticationStateProvider _authenticationStateProvider
+@attribute [Authorize(Roles=RolesMegagen.Technician)]
+
+
+ 
+    <div class="form-group">
+        <label>@text</label>
+    </div>
+    <br/>
+    <div class="form-group">
+        <button class="btn btn-danger" @onclick="ConfirmDelete">Delete</button>
+        <button class="btn btn-secondary" @onclick="Cancel">Close</button>
+    </div>
+ 
+
+
+@code {
+    [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
+
+
+    [Parameter] public int PatientId { get; set; }
+    DisplayPatient displayPatient = new DisplayPatient();
+    MarkupString text = new MarkupString( "Are you sure you want to delete patient?");
+
+    //OnParametersSet
+    protected override async Task OnParametersSetAsync()
+    {
+        var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+
+        displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{PatientId}"))!;
+
+        text = new MarkupString( $"Are you sure you want to delete patient '"+ 
+                $"{displayPatient.FirstName} {displayPatient.LastName}' ?<br/> Doctor: {displayPatient.DoctorFirstName} {displayPatient.DoctorLastName}");
+        StateHasChanged();
+
+    }
+
+
+
+    private async Task ConfirmDelete()
+    {
+        //  [Route("/api/technician/deletePatient/{PatientId}")]
+        
+        await _httpClient.DeleteAsync($"api/technician/deletePatient/{PatientId}");
+        await ModalInstance.CloseAsync(ModalResult.Ok("Deleted!"));
+    }
+
+    private async Task Cancel()
+    {
+      
+        await ModalInstance!.CancelAsync();
+    }
+
+}

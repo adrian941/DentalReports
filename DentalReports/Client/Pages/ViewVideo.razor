@@ -1,5 +1,191 @@
-﻿<h3>ViewVideo</h3>
+﻿@page "/view-video/{id}"
+@using System.Net;
+@inject HttpClient _httpClient
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+<head>
+    <link rel="stylesheet" href="css/megagen.css">
+    <link rel="stylesheet" href="css/video.css">
+
+</head>
+
+
+<div class="video-container">
+
+    <div class="el el1">
+        <div class="megagen-upper-btns-container">
+            <button class="pdf-button " @onclick="OpenPdf"></button>
+            <button class="stl-button " @onclick="OpenStl"></button>
+            <button class="menu-button " @onclick="OpenMenu"></button>
+        </div>
+
+    </div>
+
+
+    <div class="el el2">
+        <h6> @displayPatient.FirstName @displayPatient.LastName </h6>
+    </div>
+
+
+
+    <div class="el el3">
+        <video id="myVideo" controls autoplay>
+            <source src="@VideoSource" type="video/mp4" />
+        </video>
+
+    </div>
+
+
+
+
+    <div class="el el4">
+        @if (VideoTitles != null)
+        {
+            if (VideoTitles.Count != 0)
+            {
+                foreach (var videoTile in VideoTitles)
+                {
+
+                    <a href="javascript:void(0);" onclick="seekToJs('@videoTile.seconds')"> @videoTile.title </a>
+
+
+                }
+            }
+        }
+    </div>
+
+</div>
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
 
 @code {
+    [Parameter]
+    public string Id { get; set; } = "";
 
+    private string currentRole = "";
+    private string VideoSource = "";
+    private string TextSource = "";
+    private List<VideoTitle> VideoTitles = new List<VideoTitle>();
+
+
+
+    DisplayPatient displayPatient = new DisplayPatient();
+
+
+    private void OpenPdf()
+    {
+        navigationManager.NavigateTo($"view-pdf/{Id}");
+    }
+    private void OpenStl()
+    {
+        navigationManager.NavigateTo($"view-stl/{Id}");
+    }
+    private void OpenMenu()
+    {
+        navigationManager.NavigateTo($"/");
+    }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+
+
+
+
+        if (role == RolesMegagen.Technician)
+            displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+        if (role == RolesMegagen.Doctor)
+            displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+
+
+        var x = displayPatient.Files;
+
+
+        string videoFileName = displayPatient.Files.Where(f => f.Name.Trim().ToLower().EndsWith(".mp4")).First().Name;
+        Console.WriteLine(videoFileName);
+        VideoSource = await _httpClient.GetStringAsync($"/api/Storage/getFileLink/{videoFileName}");
+
+
+
+        string textFileName = displayPatient.Files.Where(f => f.Name.Trim().ToLower().EndsWith("_video_config.txt")).First().Name;
+
+
+        TextSource = await _httpClient.GetStringAsync($"/api/Storage/getFileLink/{textFileName}");
+
+
+
+
+        string textInside = await _httpClient.GetStringAsync(TextSource);
+
+        string[] lines = textInside.Trim().Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+
+        foreach (string line in lines)
+        {
+            string currentLine = line.Trim();
+            int index = currentLine.IndexOf(' ');
+            string left = currentLine.Substring(0, index);
+            string right = currentLine.Substring(index + 1);
+
+            string[] times = left.Split(':');
+            int minutes = Convert.ToInt32(times[0]);
+            int seconds = Convert.ToInt32(times[1]);
+            int totalSeconds = minutes * 60 + seconds;
+
+            VideoTitles.Add(new VideoTitle(totalSeconds, right));
+
+
+
+        }
+        await RefreshVideo();
+
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshVideo();
+        }
+    }
+
+    private async Task RefreshVideo()
+    {
+        await _jsRuntime.InvokeVoidAsync("refreshVideoJs");
+
+    }
+    private async Task SeekTo(int seconds)
+    {
+        await _jsRuntime.InvokeVoidAsync("seekToJs", seconds);
+
+    }
+
+    public class VideoTitle
+    {
+        public int seconds { get; set; }
+        public string title { get; set; }
+        public VideoTitle(int seconds, string title)
+        {
+            this.seconds = seconds;
+            this.title = title;
+        }
+    }
 }
+

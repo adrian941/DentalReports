@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components
 @inject AuthenticationStateProvider _authenticationStateProvider
 
+
 @inject IJSRuntime jsInterop
 
 
@@ -33,30 +34,48 @@
         window.location.reload(true);
     }
 </script>
+<script type="text/javascript">
+    function emptyCache() {
+        caches.delete("blazor-resources-/").then(function (e) {
+            console.log("'blazor-resources-/' cache deleted");
+        });
+    }
+
+
+</script>
 <div class="megagen-upper-btns-container fixed">
     <button class="pdf-button button-35w" @onclick="OpenPdf"></button>
     <button class="video-button button-35w" @onclick="OpenVideo"></button>
+
     <button class="menu-button button-35w" @onclick="OpenMenu"></button>
-    <button class="refresh-button button-35w" @onclick="Refresh"></button>
+    @* <button class="refresh-button button-35w" @onclick="Refresh"></button> *@
 </div>
-<canvas class="webgl"
+<canvas 
+        id="canvas-webgl"
+        class="webgl"
         style="width:95%;height:95vh; ">
 </canvas>
+
+<div id="loading-div">
+    <h2 id="loading-span"></h2>
+</div>
+
 
 
 @code {
 
     [Parameter]
-    public string Id { get; set; }
+    public string Id { get; set; } 
+
 
     DisplayPatient displayPatient = new DisplayPatient();
-  
+
     bool displayPatientLoaded = false;
     bool afterRenderLoaded = false;
 
     protected override async Task OnParametersSetAsync()
     {
-       
+
         var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
         string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
 
@@ -101,13 +120,19 @@
 
     private void HandleLocationChanged(object sender, LocationChangedEventArgs args)
     {
+
+     
         if (!args.Location.Contains("view-stl"))
         {
             _jsRuntime.InvokeVoidAsync("destroy");
-          
-            _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'flex';");
-           
 
+            _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('header').style.display = 'flex';");
+
+        }else
+        {
+            //emptyCache
+            _jsRuntime.InvokeVoidAsync("emptyCache");
+            _jsRuntime.InvokeVoidAsync("initScene");
         }
     }
 

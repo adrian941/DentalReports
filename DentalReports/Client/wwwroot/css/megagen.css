@@ -61,9 +61,10 @@ button {
     background-color: transparent;
     color: white;
     height: 30px;
+    width:30px;
     border: none;
     font-size: 10px;
-    width: 70px;
+ 
     border-radius: 5px;
     background-image: url('/images/STL-white.png');
     background-size: contain;
@@ -78,6 +79,7 @@ button {
     background-color: transparent;
     color: white;
     height: 30px;
+    width: 30px;
     border: none;
     font-size: 10px;
     width: 70px;
@@ -88,13 +90,29 @@ button {
     background-position: center center;
     object-fit: cover;
 }
+.trash-button {
+    background-color: transparent;
+    color: white;
+    height: 30px;
+    width: 30px;
+    border: none;
+    font-size: 10px;
+     
+    border-radius: 5px;
+    background-image: url('/images/TRASH-white.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+}
 .video-button {
     background-color: transparent;
     color: white;
     height: 30px;
+    width: 30px;
     border: none;
     font-size: 10px;
-    width: 70px;
+    
     border-radius: 5px;
     background-image: url('/images/MP4-white.png');
     background-size: contain;

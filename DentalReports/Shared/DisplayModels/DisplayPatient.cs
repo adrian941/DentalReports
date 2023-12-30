@@ -20,6 +20,8 @@ public class DisplayPatient
 
     public DateTime DateAdded { get; set; } = DateTime.MinValue;
 
+    public double TotalFilesSizesMB { get; set; } = 0;
+
     public List<DisplayPatientFile> Files { get; set; } = new List<DisplayPatientFile>();
 
 }

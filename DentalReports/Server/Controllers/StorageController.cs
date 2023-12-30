@@ -8,6 +8,7 @@ namespace DentalReports.Server.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
+[Authorize]
 public class StorageController : ControllerBase
 {
     private readonly IConfiguration _configuration;
@@ -25,7 +26,7 @@ public class StorageController : ControllerBase
      
     }
 
-    [AllowAnonymous]
+ 
     [HttpGet]
     [Route("/api/Storage/getFileLink/{FileName}")]
     public string getFileLink(string FileName)
@@ -37,7 +38,7 @@ public class StorageController : ControllerBase
 
     }
 
-    [AllowAnonymous]
+   
     [HttpPost]
     public async Task<ActionResult> UploadFiles(List<IFormFile> files)
     {
@@ -60,7 +61,7 @@ public class StorageController : ControllerBase
 
 
 
-        return Ok("hehe!");
+        return Ok("Uploaded!");
 
     }
 

@@ -1,0 +1,47 @@
+﻿#header {
+    display: none!important;
+}
+
+#pdfViewer {
+    width: 100%;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+#pdfViewer canvas {
+    width:100% ;
+ 
+    
+}
+
+.space {
+   height : 4px;
+   background-color: #e0e0e0;
+}
+
+.megagen-upper-btns-container {
+    margin-top: 5px;
+    z-index: 9999;
+}
+
+    .megagen-upper-btns-container.fixed {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+.megagen-upper-btn {
+    width: 1.9em;
+    height: 2.3em;
+    border-radius: 45%;
+    background: #2F2648;
+    border: none;
+    margin: 0 8px; /* Spațiere între butoane */
+    padding: 0;
+    cursor: pointer;
+    border: 1px solid #fff;
+    box-shadow: 0px 0px 68px -28px rgba(0,0,0,1);
+    color: #fff;
+}
+
