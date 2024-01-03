@@ -207,7 +207,7 @@
     pointer-events: none;
 }
 #loading-span {
-    font-size: 40px;
+    font-size: 20px;
     color: #fff;
     user-select: none;
     z-index: 10;
