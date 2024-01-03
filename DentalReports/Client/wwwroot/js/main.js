@@ -470,9 +470,11 @@ window.initialize3DViewer = function (fileSourcesArray) {
 
 				 
 					const savedRotation = camera.rotation.clone();
+					const savedPosition = camera.position.clone();
 					updateRenderOrder();
 					controls.update();
 					camera.rotation.copy(savedRotation);
+					camera.position.copy(savedPosition);
 
 
 					renderer.render(scene, camera);

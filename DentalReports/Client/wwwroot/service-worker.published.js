@@ -10,7 +10,7 @@ self.addEventListener('message', event => {
 });
 
 const cacheNamePrefix = 'offline-cache-';
-const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}-v2.1`;
+const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}-v2.2`;
 const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
 const offlineAssetsExclude = [/^service-worker\.js$/];
 
