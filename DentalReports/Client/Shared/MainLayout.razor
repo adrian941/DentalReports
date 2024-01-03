@@ -14,7 +14,7 @@
  
 <blazoredtoasts />
 
-<PWAUpdater />
+
 <div class="page">
 
 
@@ -22,7 +22,10 @@
         <article style="overflow:hidden;">
             
             <div id="patients-page" >
-
+               
+               <PWAUpdater  />
+         
+                
                 <div id="header">
 
                     <div class="logo-container">
@@ -39,7 +42,7 @@
                         </AuthorizeView>
                         <AuthorizeView Roles="@($"{RolesMegagen.Admin}, {RolesMegagen.Technician}")">
                             <Authorized>
-                                <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
+                                <span class="logout-text" @onclick="NavigateToDoctors">Doctors2</span>
                                 <span class="logout-text" @onclick="BeginSignOut">Log out</span>
                             </Authorized>
                             <NotAuthorized>
