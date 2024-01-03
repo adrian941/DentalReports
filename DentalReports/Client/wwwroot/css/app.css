@@ -100,11 +100,4 @@ a, .btn-link {
         content: var(--blazor-load-percentage-text, "Loading");
     }
 
-
-body .pwa-updater[b-pwa-updater] {
-    --pwa-updater-bar-backcolor: forestgreen;
-}
-.pwa-updater span {
-    color: white;
-    font-weight: bold;  
-}
+ 
