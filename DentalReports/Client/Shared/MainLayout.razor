@@ -39,7 +39,7 @@
                         </AuthorizeView>
                         <AuthorizeView Roles="@($"{RolesMegagen.Admin}, {RolesMegagen.Technician}")">
                             <Authorized>
-                                <span class="logout-text" @onclick="NavigateToDoctors">Doctors</span>
+                                <span class="logout-text" @onclick="NavigateToDoctors">My Doctors</span>
                                 <span class="logout-text" @onclick="BeginSignOut">Log out</span>
                             </Authorized>
                             <NotAuthorized>
