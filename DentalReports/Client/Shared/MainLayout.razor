@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Toolbelt.Blazor.PWA.Updater
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject NavigationManager _navigationManager
  
@@ -12,6 +13,8 @@
 </head>
  
 <blazoredtoasts />
+
+<PWAUpdater />
 <div class="page">
 
 

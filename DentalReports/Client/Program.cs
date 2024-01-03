@@ -4,6 +4,7 @@ using DentalReports.Shared.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -19,6 +20,8 @@ builder.Services.AddApiAuthorization();
 builder.Services.AddBlazoredModal();
 
 builder.Services.AddScoped<IDoctorService,DoctorService>();
+builder.Services.AddPWAUpdater();
+
 
 
 
