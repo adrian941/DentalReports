@@ -156,8 +156,9 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			renderer.setClearColor(0x2e2e2e)
 			
 			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 10000);
+			//camera.rotation.order = 'XYZ';
 			
-			camera.position.set(1800, 2, 20);
+			//camera.position.set(1800, 2, 20);
 			scene.add(camera);
 
 			const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -187,7 +188,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			// fetch from json file : cameraPosition , cameraRotation , objects
 			try {
 
-				console.log(fileSourcesArray);
+			 
 				const response = await fetch(fileSourcesArray[0]);
 				if (response.ok) {
 					let responseJson = await response.json();
@@ -407,8 +408,9 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				const boundingBox = new THREE.Box3().setFromObject(mesh);
 				combinedBoundingBox.union(boundingBox);
 			 });
-		 
-		 
+
+
+
 			const center = new THREE.Vector3();
 			combinedBoundingBox.getCenter(center);
 			let translation = new THREE.Vector3().subVectors(new THREE.Vector3(0, 0, 0), center);
@@ -425,13 +427,29 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			}
 			spanLoading.style.display = 'none';
 
+
+			/*camera.rotation.set(cameraRotation.z, cameraRotation.y, cameraRotation.x, 'XYZ');*/
+			//camera.rotation.x = cameraRotation.x;
+			//camera.rotation.y = cameraRotation.y;
+			//camera.rotation.z = cameraRotation.z;
+			//			camera.rotation.order = 'XZY';
+
 			camera.position.x = cameraPosition.x;
 			camera.position.y = cameraPosition.y;
 			camera.position.z = cameraPosition.z;
+ 
 
-			camera.rotation.x = cameraRotation.x;
-			camera.rotation.y = cameraRotation.y;
-			camera.rotation.z = cameraRotation.z;
+
+
+
+			camera.rotation.set(cameraRotation.x, cameraRotation.y, cameraRotation.z, 'XYZ');
+
+			camera.updateProjectionMatrix();
+
+			
+ 
+
+
 
 
 
@@ -449,9 +467,14 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			const animate = () => {
 			 
 				if (window.isAnimationRunning) {
-					
+
+				 
+					const savedRotation = camera.rotation.clone();
 					updateRenderOrder();
 					controls.update();
+					camera.rotation.copy(savedRotation);
+
+
 					renderer.render(scene, camera);
 					requestAnimationFrame(animate);
 				}
