@@ -427,22 +427,17 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			}
 			spanLoading.style.display = 'none';
 
-
-			/*camera.rotation.set(cameraRotation.z, cameraRotation.y, cameraRotation.x, 'XYZ');*/
-			//camera.rotation.x = cameraRotation.x;
-			//camera.rotation.y = cameraRotation.y;
-			//camera.rotation.z = cameraRotation.z;
-			//			camera.rotation.order = 'XZY';
-
+ 
 			camera.position.x = cameraPosition.x;
 			camera.position.y = cameraPosition.y;
 			camera.position.z = cameraPosition.z;
  
+			camera.rotation.x = cameraRotation.x;
+			camera.rotation.y = cameraRotation.y;
+			camera.rotation.z = cameraRotation.z;
 
 
-
-
-			camera.rotation.set(cameraRotation.x, cameraRotation.y, cameraRotation.z, 'XYZ');
+			 
 
 			camera.updateProjectionMatrix();
 
@@ -469,14 +464,10 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				if (window.isAnimationRunning) {
 
 				 
-					//const savedRotation = camera.rotation.clone();
-					//const savedPosition = camera.position.clone();
+ 
 					updateRenderOrder();
 					controls.update();
-					//camera.rotation.copy(savedRotation);
-					//camera.position.copy(savedPosition);
-
-
+			  
 					renderer.render(scene, camera);
 					requestAnimationFrame(animate);
 				}
