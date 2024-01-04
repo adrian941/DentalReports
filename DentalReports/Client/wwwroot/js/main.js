@@ -155,7 +155,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 			renderer.setClearColor(0x2e2e2e)
 			
-			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 10000);
+			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 100000);
 			//camera.rotation.order = 'XYZ';
 			
 			//camera.position.set(1800, 2, 20);
@@ -469,12 +469,12 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				if (window.isAnimationRunning) {
 
 				 
-					const savedRotation = camera.rotation.clone();
-					const savedPosition = camera.position.clone();
+					//const savedRotation = camera.rotation.clone();
+					//const savedPosition = camera.position.clone();
 					updateRenderOrder();
 					controls.update();
-					camera.rotation.copy(savedRotation);
-					camera.position.copy(savedPosition);
+					//camera.rotation.copy(savedRotation);
+					//camera.position.copy(savedPosition);
 
 
 					renderer.render(scene, camera);
