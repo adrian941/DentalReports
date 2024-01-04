@@ -326,20 +326,39 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				const rangeValue = document.createElement('span');
 				rangeValue.className = 'range-value';
 				rangeValue.textContent = Math.floor(value.Opacity * 100) + '%';
-			 
-				range.addEventListener ("input", (e) => {
-					
-					rangeValue.textContent = Math.floor(e.target.value * 100) + '%';
-					
-					value.Mesh.material.opacity=e.target.value;
 
-					buttonSlider.classList.remove('unchecked');
-			
-					currentContainerSlider.style.opacity = 1;
-					value.Mesh.material.visible = true;
+				box.style.touchAction = 'none';
+				box.addEventListener('click', function (event) {
+						console.log('click');		
+					}
+				);
+				box.addEventListener('mousedown', function (event) {
+					console.log('mousedown');
+					let touchStartX = event.touches[0].clientX;
+					console.log('touchStartX', touchStartX)
 
-				}); 
-				
+					box.addEventListener('mousemove', function (event) {
+						event.preventDefault();
+
+						let touchMoveX = event.touches[0].clientX;
+						let delta = touchMoveX - touchStartX;
+						console.log('touchMove', touchMove);
+						console.log('delta', delta);
+
+						// Calculăm procentul de deplasare în interiorul div-ului
+						let percentage = delta / box.clientWidth;
+
+						// Calculăm noua valoare a range-ului în funcție de procent
+						let newValue = Math.round(percentage * (range.max - range.min) + parseFloat(range.min));
+
+						// Setăm noua valoare a range-ului
+						range.value = newValue;
+
+						// Actualizăm poziția de start pentru următoarea mișcare
+						touchStartX = touchMoveX;
+					});
+				});
+
 			
 				box.appendChild(range);
 				box.appendChild(rangeValue);
@@ -463,11 +482,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			 
 				if (window.isAnimationRunning) {
 
-				 
- 
 					updateRenderOrder();
-					controls.update();
-			  
+					//controls.update();
 					renderer.render(scene, camera);
 					requestAnimationFrame(animate);
 				}

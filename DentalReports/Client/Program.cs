@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Blazored.Modal;
 using DentalReports.Client;
 using DentalReports.Shared.Services;
@@ -21,7 +22,7 @@ builder.Services.AddBlazoredModal();
 
 builder.Services.AddScoped<IDoctorService,DoctorService>();
 builder.Services.AddPWAUpdater();
-
+builder.Services.AddBlazoredLocalStorage(); 
 
 
 

@@ -31,7 +31,7 @@
 
 
     <div class="el el3">
-        <video id="myVideo" controls autoplay>
+        <video id="myVideo" controls playsinline poster="images/video-poster.jpg">
             <source src="@VideoSource" type="video/mp4" />
         </video>
 
@@ -45,13 +45,15 @@
         {
             if (VideoTitles.Count != 0)
             {
+                int i = 0;
                 foreach (var videoTile in VideoTitles)
                 {
+                    i++;
+                    <button id=@($"btn-{i}") @onclick="()=>SeekToJs(videoTile.seconds)"> @videoTile.title </button>
+                     
 
-                    <a href="javascript:void(0);" onclick="seekToJs('@videoTile.seconds')"> @videoTile.title </a>
 
-
-                }
+                } 
             }
         }
     </div>
@@ -86,7 +88,10 @@
 
     DisplayPatient displayPatient = new DisplayPatient();
 
-
+    private async Task SeekToJs(int totalSeconds)
+    {
+        await _jsRuntime.InvokeVoidAsync("seekToJs", totalSeconds);
+    }
     private void OpenPdf()
     {
         navigationManager.NavigateTo($"view-pdf/{Id}");

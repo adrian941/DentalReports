@@ -254,6 +254,8 @@ input[type=text] {
     padding: 4px;
     user-select: none;
     z-index: 2;
+    padding-bottom:0;
+    margin-bottom:15px;
 }
 
     #meg-table-footer.footer-container {
@@ -281,10 +283,12 @@ input[type=text] {
     font-weight: bold;
     text-align: center center;
     /*Arial */
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: var(--megagen-light-blue);
-    color: var(--megagen-blue);
+    /*font-family: Arial, Helvetica, sans-serif;*/
+    background-color: lightgray;
+    
+    color: #0078D7;
     border: none;
+    font-family: Söhne, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 .add-btn-container {
     margin-top: 5px;
@@ -339,3 +343,26 @@ input[type=number] {
     text-align: center;
 }
 
+.btn-first {
+    background-image: url('/images/FIRST.png');
+}
+.btn-prev {
+    background-image: url('/images/PREV.png');
+}
+.btn-next {
+    background-image: url('/images/NEXT.png');
+}
+.btn-last {
+    background-image: url('/images/LAST.png');
+}
+
+.btn-paginator {
+    border: none;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding: 2px;
+    border-radius: 20%;
+    background-color: white;
+    background-color: #E0E1E5;
+}
+/* 
