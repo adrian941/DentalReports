@@ -427,7 +427,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 
 			 
 
-			camera.updateProjectionMatrix();
+			//camera.updateProjectionMatrix();
 
 			
  
@@ -450,9 +450,9 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			const animate = () => {
 			 
 				if (window.isAnimationRunning) {
-
+					console.log("animating");
 					updateRenderOrder();
-					//controls.update();
+					controls.update();
 					renderer.render(scene, camera);
 					requestAnimationFrame(animate);
 				}
