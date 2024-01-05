@@ -178,6 +178,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			// Adaugă aceste linii dacă vrei să setezi limita pentru zoom
 			controls.minDistance = 40;
 			controls.maxDistance = 6000;
+			controls.touches.ONE = THREE.TOUCH.PAN
+			controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE
 
 			//init materials
 			 
@@ -457,8 +459,9 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				if (window.isAnimationRunning) {
 					
 					updateRenderOrder();
-					controls.update();
 					renderer.render(scene, camera);
+					controls.update();
+
 					requestAnimationFrame(animate);
 				}
 			}
