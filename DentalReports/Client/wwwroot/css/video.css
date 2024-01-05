@@ -16,6 +16,17 @@ h6 {
  
 }
 
+/* media query just for landscape*/
+
+@media screen and (orientation: landscape) {
+    #patients-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+
 .video-container {
     
 }
@@ -108,4 +119,16 @@ video {
         text-align: left;
     }*/
 
+}
+
+
+.btn-video {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    text-align: left;
+    text-decoration: none;
+    padding-bottom: 0;
+    font-size: 12px;
+    user-select: none;
 }

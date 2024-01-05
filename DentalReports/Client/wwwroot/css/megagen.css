@@ -34,6 +34,9 @@ button {
 .megagen-upper-btns-container {
     margin-top: 5px;
     z-index: 9999;
+    display: flex;
+    /*space between*/
+    justify-content: space-around;
  
 }
     .megagen-upper-btns-container.fixed {
@@ -82,7 +85,6 @@ button {
     width: 30px;
     border: none;
     font-size: 10px;
-    width: 70px;
     border-radius: 5px;
     background-image: url('/images/PDF-white.png');
     background-size: contain;
@@ -127,9 +129,9 @@ button {
     background-color: transparent;
     color: white;
     height: 30px;
+    width: 30px;
     border: none;
     font-size: 10px;
-    width: 70px;
     border-radius: 5px;
     background-image: url('/images/MENU-white.png');
     background-size: contain;

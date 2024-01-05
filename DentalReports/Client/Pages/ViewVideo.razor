@@ -49,7 +49,7 @@
                 foreach (var videoTile in VideoTitles)
                 {
                     i++;
-                    <button id=@($"btn-{i}") @onclick="()=>SeekToJs(videoTile.seconds)"> @videoTile.title </button>
+                    <button class="btn-video" id=@($"btn-{i}") @onclick="()=>SeekToJs(videoTile.seconds)"> @videoTile.title </button>
                      
 
 
