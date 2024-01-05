@@ -329,7 +329,18 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				rangeValue.className = 'range-value';
 				rangeValue.textContent = Math.floor(value.Opacity * 100) + '%';
 
-				
+				range.addEventListener("input", (e) => {
+
+					rangeValue.textContent = Math.floor(e.target.value * 100) + '%';
+
+					value.Mesh.material.opacity = e.target.value;
+
+					buttonSlider.classList.remove('unchecked');
+
+					currentContainerSlider.style.opacity = 1;
+					value.Mesh.material.visible = true;
+
+				}); 
 			
 				box.appendChild(range);
 				box.appendChild(rangeValue);
