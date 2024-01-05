@@ -26,9 +26,9 @@
                         {
                             @* Header for DOCTORS *@
                             <th>
-                                <div class="modal-filter">
-                                    <span @onclick="OpenDoctorsModal" class="font-size-10">@DisplayDoctorTextFilters</span>
-                                    <button @onclick="ClearDoctorsFilter" class="clear-filter-btn"></button>
+                                <div class="modal-filter" @onclick="OpenDoctorsModal">
+                                    <span  class="font-size-10">@DisplayDoctorTextFilters</span>
+                                    <button @onclick="ClearDoctorsFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
                                 </div>
                                 <div class="meg-sub-filter-space"></div>
                                 <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
@@ -46,9 +46,9 @@
                         @* Header for DATE *@
                         <th>
 
-                            <div class="modal-filter date-modal-filter-width">
-                                <span @onclick="OpenDateModal" class="date-filter-width">@DisplayDateFilter</span>
-                                <button @onclick="ClearDateFilter" class="clear-filter-btn"></button>
+                            <div class="modal-filter date-modal-filter-width" @onclick="OpenDateModal">
+                                <span  class="date-filter-width">@DisplayDateFilter</span>
+                                <button @onclick="ClearDateFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
                             </div>
 
 
@@ -281,43 +281,105 @@
     private string role = "";
 
 
-    protected override async void OnInitialized ()
+    protected override async Task OnInitializedAsync ()
     {
 
+
+        await FetchFromLocalStorageAsync();
+        await FetchFromApiAsync();
+
+
+
+ 
+
+    }
+    public async Task FetchFromLocalStorageAsync()
+    {
         role = await _localStorage.GetItemAsync<string>("role") ?? "";
+        //fetch OriginalDoctors from LocalStorage
+        try
+        {
+            var doctors = await _localStorage.GetItemAsync<List<DisplayDoctor>>("doctors") ?? new List<DisplayDoctor>();
+            var patients = await _localStorage.GetItemAsync<List<DisplayPatient>>("patients") ?? new List<DisplayPatient>();
+
+            OriginalPatients = patients;
+            OriginalDoctors = doctors;
+
+            FilteredPatients = OriginalPatients;
+            DisplayPatients = OriginalPatients;
+            FilteredDoctors = OriginalDoctors;
+            InitPaginator();
+            StateHasChanged();
+        }
+        catch(Exception )
+        {
+
+        }
+
+
+    }
+    public async Task FetchFromApiAsync()
+    {
+        List<DisplayPatient>? patients = null;
+        List<DisplayDoctor>? doctors = null;
 
         var User = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!; //TODO : learn about Claims later
-        await _localStorage.SetItemAsync<string>("role", role);
-
-
-
-
-        if(role == RolesMegagen.Technician)
+        
+        if (role != User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!)    
         {
-            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
-            OriginalDoctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/getDoctors") ?? new List<DisplayDoctor>();
-
-        }else if (role == RolesMegagen.Doctor)
+            role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!;
+            await _localStorage.SetItemAsync<string>("role", role);
+        }
+        if (role == RolesMegagen.Technician)
         {
-            OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
-            OriginalDoctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/doctor/getCurrentDoctor") ?? new List<DisplayDoctor>();
+            patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
+            doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/getDoctors") ?? new List<DisplayDoctor>();
+
+        }
+        else if (role == RolesMegagen.Doctor)
+        {
+            patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
+            doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/doctor/getCurrentDoctor") ?? new List<DisplayDoctor>();
         }
         else
         {
             return; // Let just the default HTML messages to be displayed
         }
 
-        FilteredPatients = OriginalPatients;
-        DisplayPatients = OriginalPatients;
-        FilteredDoctors = OriginalDoctors;
+        //doctors
+        if (!doctors.SequenceEqual(OriginalDoctors) || !patients.SequenceEqual(OriginalPatients))
+        {
+            OriginalPatients = patients;
+            OriginalDoctors = doctors;
+
+            FilteredPatients = OriginalPatients;
+            DisplayPatients = OriginalPatients;
+            FilteredDoctors = OriginalDoctors;
+
+            InitPaginator();
+            StateHasChanged();
+
+            await _localStorage.SetItemAsync<List<DisplayDoctor>>("doctors", OriginalDoctors);
+            await _localStorage.SetItemAsync<List<DisplayPatient>>("patients", OriginalPatients);
+        }
+       
+
+
+ 
 
 
 
-        InitPaginator();
-        StateHasChanged();
 
+
+       
     }
+
+
+
+
+
+
+
     public void InitPaginator()
     {
 
@@ -424,6 +486,7 @@
     }
     private async void ClearDoctorsFilter()
     {
+       
         FilteredDoctors = OriginalDoctors;
 
         DisplayDoctorTextFilters = $"Select Doctors";
