@@ -170,19 +170,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 	
 			window.controls = new THREE.ArcballControls(camera, canvas, scene);
 			controls.setGizmosVisible(false);
-			controls.enableDamping = true; // anable inertia/smoothness for pan and zoom
-			controls.dampingFactor = 50;
-	 
-			controls.maxPolarAngle = Math.PI / 2;
 
-			// Adaugă aceste linii dacă vrei să setezi limita pentru zoom
-			controls.minDistance = 40;
-			controls.maxDistance = 6000;
-			controls.touches.ONE = THREE.TOUCH.PAN
-			controls.touches = {
-				ONE: THREE.TOUCH.ROTATE,
-				TWO: THREE.TOUCH.DOLLY_PAN
-			}
+
 
 			//init materials
 			 
@@ -462,8 +451,9 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				if (window.isAnimationRunning) {
 					
 					updateRenderOrder();
-					renderer.render(scene, camera);
+				
 					controls.update();
+					renderer.render(scene, camera);
 
 					requestAnimationFrame(animate);
 				}
