@@ -450,7 +450,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			const animate = () => {
 			 
 				if (window.isAnimationRunning) {
-					console.log("animating");
+					
 					updateRenderOrder();
 					controls.update();
 					renderer.render(scene, camera);
