@@ -158,7 +158,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 6000);
 			//camera.rotation.order = 'XYZ';
 			
-			//camera.position.set(1800, 2, 20);
+			camera.position.set(1800, 2, 20);
 			scene.add(camera);
 
 			const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
