@@ -386,10 +386,11 @@
 
         try{
             paginator_EntriesPerPage = await _localStorage.GetItemAsync<int>("paginator_EntriesPerPage");
+            if(paginator_EntriesPerPage < 1) { paginator_EntriesPerPage = Math.Min(10,paginator_TotalRows); }
         }   catch(Exception )
-            {
-                paginator_EntriesPerPage = 10;
-            }
+        {
+            paginator_EntriesPerPage = Math.Min(10, paginator_TotalRows);
+        }
             paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
                              + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
 
