@@ -19,11 +19,11 @@
 
 @code {
     private Dates dates = new Dates();
-    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
     [Parameter] public DateTime FromDate { get; set; }
     [Parameter] public DateTime ToDate { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
 
         if (FromDate == DateTime.MinValue)
@@ -53,8 +53,8 @@
         try
         {
 
-            await ModalInstance?.CloseAsync(ModalResult.Ok(dates));
-            await ModalInstance?.CancelAsync()!;
+            await ModalInstance!.CloseAsync(ModalResult.Ok(dates));
+            await ModalInstance!.CancelAsync()!;
 
         }
         catch (Exception)

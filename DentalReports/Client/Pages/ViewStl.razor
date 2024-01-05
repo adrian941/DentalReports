@@ -65,14 +65,12 @@
 @code {
 
     [Parameter]
-    public string Id { get; set; } 
+    public string? Id { get; set; } 
 
 
     DisplayPatient displayPatient = new DisplayPatient();
 
-    bool displayPatientLoaded = false;
-    bool afterRenderLoaded = false;
-
+  
     protected override async Task OnParametersSetAsync()
     {
 
@@ -87,7 +85,7 @@
         if (role == RolesMegagen.Doctor)
             displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
 
-        displayPatientLoaded = true;
+ 
 
 
 
@@ -167,12 +165,11 @@
                 if (role == RolesMegagen.Doctor)
                     displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
 
-                displayPatientLoaded = true;
-
+            
 
                 await DoThings();
             }
-            catch (Exception ex)
+            catch (Exception )
             {
 
             }
@@ -180,8 +177,7 @@
         }
 
 
-
-        afterRenderLoaded = true;
+         
     }
 
     public async Task DoThings()

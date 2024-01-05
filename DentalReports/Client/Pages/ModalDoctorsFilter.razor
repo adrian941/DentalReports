@@ -22,18 +22,18 @@
 
 @code {
 
-    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
 
 
-    [Parameter] public List<DisplayDoctor> OriginalDoctors { get; set; }
-    public List<DisplayDoctor> FilteredDoctors = new List<DisplayDoctor>();
+    [Parameter] public List<DisplayDoctor>? OriginalDoctors { get; set; }
+    public List<DisplayDoctor>? FilteredDoctors = new List<DisplayDoctor>();
 
     public List<DisplayDoctorViewModel> DisplayDoctors { get; set; } = new List<DisplayDoctorViewModel>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         FilteredDoctors = OriginalDoctors;
-        foreach (var Doctor in OriginalDoctors)
+        foreach (var Doctor in OriginalDoctors!)
         {
             DisplayDoctors.Add(new DisplayDoctorViewModel { Doctor = Doctor, IsChecked = false });
         }
@@ -43,14 +43,14 @@
     private async void HandleValidSubmit()
     {
         FilteredDoctors = DisplayDoctors.Where(x => x.IsChecked).Select(x => x.Doctor).ToList();
-        await ModalInstance.CloseAsync(ModalResult.Ok(FilteredDoctors));
-        await ModalInstance.CancelAsync();
+        await ModalInstance!.CloseAsync(ModalResult.Ok(FilteredDoctors));
+        await ModalInstance!.CancelAsync();
     }
 
 
     public class DisplayDoctorViewModel
     {
-        public DisplayDoctor Doctor { get; set; }
+        public DisplayDoctor Doctor { get; set; } = new DisplayDoctor();
         public bool IsChecked { get; set; }
     }
 

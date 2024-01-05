@@ -66,12 +66,12 @@
 
 
     private DisplayAddPatient displayAddPatient = new DisplayAddPatient();
-    [CascadingParameter] public BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter] public BlazoredModalInstance? ModalInstance { get; set; }
     private string FileErrors = "";
 
     private bool AreFilesValid = false;
 
-    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    private void OnInputFileChange(InputFileChangeEventArgs e)
     {
         FileErrors = "";
         AreFilesValid = areFilesValid(e);

@@ -34,10 +34,9 @@
 @code {
 
     [Parameter]
-    public string Id { get; set; }
+    public string? Id { get; set; }
     DisplayPatient displayPatient = new DisplayPatient();
-    private string currentRole = "";
-
+  
     private string PdfSource = @"";
 
 
@@ -60,16 +59,7 @@
     }
 
 
-
-    protected override async Task OnParametersSetAsync()
-    {
-
-
-
-
-
-
-    }
+     
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

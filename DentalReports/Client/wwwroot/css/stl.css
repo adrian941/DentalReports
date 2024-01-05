@@ -10,12 +10,12 @@
     display: flex;
     flex-direction: column;
     /* background: #2F2648; */
-    border-radius: 20px;
+    /*border-radius: 20px;*/
     padding: 10px;
     /* border: 1px solid #fff; */
-    gap:10px;
-    /* overflow: scroll;
-    max-height:100svh; */
+    gap:8px;
+    overflow: scroll;
+    max-height:100svh; 
 
 }
 
@@ -213,3 +213,5 @@
     user-select: none;
     z-index: 10;
 }
+
+/*mediaquery atunci cand inaltimea e */

@@ -1,6 +1,5 @@
 ﻿
 
-
 window.isAnimationRunning = true;
 window.initialize3DViewer = function (fileSourcesArray) {
 
@@ -30,99 +29,120 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				emissive: 0x282828,
 				flatShading: false,
 				side: THREE.DoubleSide,
-				alphaTest: 0.01,
+				alphaTest: 0.05,
+			});
+			window.matCraniu2 = new THREE.MeshPhongMaterial({
+				color: 0xCCB266,
+				opacity: 1,
+				transparent: true,
+				shininess: 0.1,
+				specular: 0x000000,
+				emissive: 0xE66,
+				flatShading: false,
+				side: THREE.DoubleSide,
+				alphaTest: 0.05,
 			});
 			window.matImplant = new THREE.MeshPhongMaterial({
-				color: 0xa258ec,
+				color: 0x7F3FBF,
 				emissive: 0x000000,
-				specular: 0x111111,
+				specular: 0x208ABE,
 				opacity: 1,
 				transparent: true,
 				reflectivity: 0.2,
-			
+
 				premultipliedAlpha: false,
 				side: THREE.DoubleSide,
-				alphaTest: 0.01,
+				alphaTest: 0.05,
 				depthWrite: true,
-	
+
 				flatShading: true
-	
-			});
+
+			})
 			window.matCapa = new THREE.MeshPhongMaterial({
-				color: 0x1f7a74,
-				emissive: 0x000000,
-				specular: 0x080808,
+				color: 0x7FBF9C,
+				emissive: 0x001941,
+				specular: 0x0C162A,
 				opacity: 1,
 				transparent: true,
-				
+
 				reflectivity: 0.2,
-				
+
 				premultipliedAlpha: false,
 				side: THREE.DoubleSide,
-				alphaTest: 0.01,
+				alphaTest: 0.05,
 				depthWrite: true,
 				flatShading: false
-	
-			});
+
+			})
 			window.matSurub = new THREE.MeshPhongMaterial({
-				color: 0x5977ee,
-				emissive: 0x000000,
-				specular: 0x111111,
+				color: 0x0016ED,
+				emissive: 0x001941,
+				specular: 0x241537,
 				opacity: 1,
 				transparent: true,
-				
+
 				reflectivity: 0.2,
-				
+
 				premultipliedAlpha: false,
 				side: THREE.DoubleSide,
-				alphaTest: 0.01,
+				alphaTest: 0.05,
 				depthWrite: true,
 				flatShading: false
-	
-			});
+
+			})
 			window.matModel = new THREE.MeshPhongMaterial({
-	
-				color: 0xc78c5c, // Portocaliu deschis
-				emissive: 0x272725,
-				specular: 0x030401,
+
+				color: 0xB8975C,
+				emissive: 0x262625,
+				specular: 0x070402,
 				opacity: 1,
 				transparent: true,
-				alphaTest: 0.01,
-			
+
 				side: THREE.DoubleSide,
 			});
 			window.matAntagonist = new THREE.MeshPhongMaterial({
-	
-				color: 0xa9cfea, // Portocaliu deschis
-				emissive: 0x1b1d1d,
-				specular: 0x040404,
+
+				color: 0x87BAD9,
+				emissive: 0x00141B,
+				specular: 0x000414,
 				opacity: 1,
 				transparent: true,
-				alphaTest: 0.01,
 				side: THREE.DoubleSide,
 			});
 			window.matGingie = new THREE.MeshPhongMaterial({
-	
-				color: 0xfd6895,  
-				emissive: 0x100f0f,
-				specular: 0x0b0b0b,
+
+				color: 0xFF92B5,
+				emissive: 0x11,
+				specular: 0x0A0515,
 				opacity: 1,
 				transparent: true,
-				alphaTest: 0.01,
+
 				side: THREE.DoubleSide,
 			});
 			window.matWaxUp = new THREE.MeshPhongMaterial({
-				color: 0x9ca0b0,
-				emissive: 0x1f1f1f,
+				color: 0x6f778b,
+				emissive: 0x1C203C,
 				specular: 0x0f0f0f,
 				opacity: 1,
 				transparent: true,
 				premultipliedAlpha: false,
 				side: THREE.DoubleSide,
-				alphaTest: 0.01,
+				alphaTest: 0.05,
 				depthWrite: true,
 				flatShading: false,
-			});
+			})
+
+			window.materialsJson =
+				[
+					{ "Name": "GRAY", "Material": matWaxUp, "MaterialVariableName": "matWaxUp" },
+					{ "Name": "ORANGE", "Material": matModel, "MaterialVariableName": "matModel" },
+					{ "Name": "LIGHT-BLUE", "Material": matAntagonist, "MaterialVariableName": "matAntagonist" },
+					{ "Name": "RADIOGRAPHIC", "Material": matCraniu, "MaterialVariableName": "matCraniu" },
+					{ "Name": "RADIOGRAPHIC2", "Material": matCraniu2, "MaterialVariableName": "matCraniu2" },
+					{ "Name": "METALIC-PURPLE", "Material": matImplant, "MaterialVariableName": "matImplant" },
+					{ "Name": "METALIC-GREEN", "Material": matCapa, "MaterialVariableName": "matCapa" },
+					{ "Name": "METALIC-BLUE", "Material": matSurub, "MaterialVariableName": "matSurub" },
+					{ "Name": "PINK Gingiva", "Material": matGingie, "MaterialVariableName": "matGingie" }];
 		}
 		 
 		async function initScene() {
@@ -147,8 +167,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				alpha: true
 			});
 			
-			renderer.outputEncoding = THREE.sRGBEncoding
-			renderer.logarithmicDepthBuffer = true
+			renderer.outputEncoding = THREE.GammaEncoding
+			renderer.logarithmicDepthBuffer = false
 			renderer.shadowMap.enabled = true
 			renderer.shadowMap.type = THREE.PCFSoftShadowMap
 			renderer.setSize(sizes.width, sizes.height)
@@ -180,7 +200,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				{"Material": window.matWaxUp , "MaterialVariableName" : "matWaxUp"} ,
 				{"Material": window.matModel, "MaterialVariableName" : "matModel"}, 
 				{"Material": window.matAntagonist, "MaterialVariableName" : "matAntagonist"}, 
-				{"Material": window.matCraniu, "MaterialVariableName" : "matCraniu"} , 
+				{"Material": window.matCraniu, "MaterialVariableName": "matCraniu" }, 
+				{"Material": window.matCraniu2, "MaterialVariableName" : "matCraniu2"},
 				{"Material": window.matImplant, "MaterialVariableName" : "matImplant"}, 
 				{"Material": window.matCapa, "MaterialVariableName" : "matCapa"}, 
 				{"Material": window.matSurub, "MaterialVariableName" : "matSurub"}, 
@@ -232,6 +253,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 
 			var bigTitle = document.createElement('div');
 			bigTitle.className = 'big-title';
+		 
 			bigTitle.classList.add('minimized');	
 			bigTitle.textContent = 'Controls';
 			bigTitle.addEventListener('click', function () {	
@@ -243,7 +265,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 					entry.classList.toggle('minimized');
 				});
 			});
-			bigContainer.appendChild(bigTitle);
+				bigContainer.appendChild(bigTitle);
+			
 			document.body.appendChild(bigContainer);
 
 

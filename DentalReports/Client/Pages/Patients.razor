@@ -311,7 +311,7 @@
             await InitPaginatorAsync();
             StateHasChanged();
         }
-        catch(Exception ex)
+        catch(Exception )
         {
 
         }
@@ -452,7 +452,7 @@
         {
             return;
         }
-        FilteredDoctors = ((List<DisplayDoctor>)(result.Data))!;
+        FilteredDoctors = ((List<DisplayDoctor>)(result.Data!))!;
 
         if (FilteredDoctors.Count > 1)
         {
@@ -491,14 +491,14 @@
             return;
         }
 
-        FromDateFilter = ((Dates)(result.Data)).FromDate;
-        ToDateFilter = ((Dates)(result.Data)).ToDate;
+        FromDateFilter = ((Dates)(result.Data!))!.FromDate;
+        ToDateFilter = ((Dates)(result.Data!))!.ToDate;
 
         DisplayDateFilter = (MarkupString)$"{FromDateFilter.ToShortDateString()} to <br /> {ToDateFilter.ToShortDateString()}";
 
         ApplyAllFilters();
     }
-    private async void ClearDoctorsFilter()
+    private void ClearDoctorsFilter()
     {
        
         FilteredDoctors = OriginalDoctors;
@@ -506,7 +506,7 @@
         DisplayDoctorTextFilters = $"Select Doctors";
         ApplyAllFilters();
     }
-    private async void ClearDateFilter()
+    private void ClearDateFilter()
     {
         FromDateFilter = DateTime.MinValue;
         ToDateFilter = DateTime.MaxValue;
@@ -565,7 +565,7 @@
         try
         {
 
-            PatientNameFilter = args.Value.ToString();
+            PatientNameFilter = args.Value!.ToString()!;
             ApplyAllFilters();
 
         }
