@@ -290,7 +290,7 @@
 
 
 
- 
+
 
     }
     public async Task FetchFromLocalStorageAsync()
@@ -308,10 +308,10 @@
             FilteredPatients = OriginalPatients;
             DisplayPatients = OriginalPatients;
             FilteredDoctors = OriginalDoctors;
-            InitPaginator();
+            await InitPaginatorAsync();
             StateHasChanged();
         }
-        catch(Exception )
+        catch(Exception ex)
         {
 
         }
@@ -324,7 +324,7 @@
         List<DisplayDoctor>? doctors = null;
 
         var User = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        
+
         if (role != User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!)    
         {
             role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!;
@@ -356,22 +356,22 @@
             DisplayPatients = OriginalPatients;
             FilteredDoctors = OriginalDoctors;
 
-            InitPaginator();
+            await InitPaginatorAsync();
             StateHasChanged();
 
             await _localStorage.SetItemAsync<List<DisplayDoctor>>("doctors", OriginalDoctors);
             await _localStorage.SetItemAsync<List<DisplayPatient>>("patients", OriginalPatients);
         }
-       
-
-
- 
 
 
 
 
 
-       
+
+
+
+
+
     }
 
 
@@ -380,16 +380,29 @@
 
 
 
-    public void InitPaginator()
+    public async Task InitPaginatorAsync()
     {
-
-
         paginator_TotalRows = DisplayPatients.Count;
-        paginator_EntriesPerPage = 10;
-        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
-                             + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
-        paginator_CurrentPage = 1;
 
+        try{
+            paginator_EntriesPerPage = await _localStorage.GetItemAsync<int>("paginator_EntriesPerPage");
+        }   catch(Exception )
+            {
+                paginator_EntriesPerPage = 10;
+            }
+            paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                             + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+
+
+        try {
+            paginator_CurrentPage = await _localStorage.GetItemAsync<int>("paginator_CurrentPage");
+            if(paginator_CurrentPage < 1) { paginator_CurrentPage = 1; }
+        }
+        catch (Exception )
+        {
+            paginator_CurrentPage = 1;
+        }
+   
         DisplayPatients = DisplayPatients.OrderByDescending(x => x.DateAdded).ToList();
         FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
 
@@ -571,6 +584,14 @@
         paginator_TotalRows = DisplayPatients.Count;
         paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
                               + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+
+        // set all to local storage
+        _localStorage.SetItemAsync<int>("paginator_EntriesPerPage", paginator_EntriesPerPage);
+        _localStorage.SetItemAsync<int>("paginator_CurrentPage", paginator_CurrentPage);
+
+
+
+
         FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
         paginator_StringRange = $"{(paginator_CurrentPage - 1) * paginator_EntriesPerPage + 1} to {Math.Min(paginator_CurrentPage * paginator_EntriesPerPage, paginator_TotalRows)}";
 
@@ -682,7 +703,7 @@
     }
 
 
-    private void HandleInputChange_Entries(ChangeEventArgs args)
+    private async Task HandleInputChange_Entries(ChangeEventArgs args)
     {
         try
         {
@@ -697,6 +718,8 @@
             }
             paginator_EntriesPerPage = inputValue;
             paginator_CurrentPage = 1;
+           
+            await _localStorage.SetItemAsync<int>("paginator_EntriesPerPage", paginator_EntriesPerPage);
             PaginatorChanged();
         }
         catch (Exception )
@@ -706,7 +729,7 @@
     }
 
 
-    private void HandleInputChange_Pages(ChangeEventArgs args)
+    private async Task HandleInputChange_Pages(ChangeEventArgs args)
     {
         try
         {
@@ -720,6 +743,7 @@
                 inputValue = paginator_PagesNumber;
             }
             paginator_CurrentPage = inputValue;
+            await _localStorage.SetItemAsync<int>("paginator_CurrentPage", paginator_CurrentPage);
             PaginatorChanged();
         }
         catch (Exception )
