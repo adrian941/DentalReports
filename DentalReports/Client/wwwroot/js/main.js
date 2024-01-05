@@ -179,7 +179,10 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			controls.minDistance = 40;
 			controls.maxDistance = 6000;
 			controls.touches.ONE = THREE.TOUCH.PAN
-			controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE
+			controls.touches = {
+				ONE: THREE.TOUCH.ROTATE,
+				TWO: THREE.TOUCH.DOLLY_PAN
+			}
 
 			//init materials
 			 
