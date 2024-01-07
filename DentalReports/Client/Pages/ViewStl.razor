@@ -14,6 +14,20 @@
 <head>
     <link rel="stylesheet" href="css/megagen.css">
     <link rel="stylesheet" href="css/stl.css">
+    <script>
+        function destroyContainer() {
+
+            var element = document.querySelector('.big-container');
+            if (element) {
+                element.remove();
+            }
+
+            window.spanLoading = document.getElementById('loading-span');
+            spanLoading.style.display = 'visible';
+            spanLoading.style.zIndex = 50;
+            spanLoading.textContent = 'Loading 3D Models...';
+        }
+    </script>
 
 </head>
 
@@ -43,6 +57,7 @@
 
 
 </script>
+
 <div class="megagen-upper-btns-container fixed">
     <button class="pdf-button button-35w" @onclick="OpenPdf"></button>
     <button class="video-button button-35w" @onclick="OpenVideo"></button>
@@ -154,7 +169,11 @@
             HideHeader();
             try
             {
-                
+                //call Javascript function: destroyContainer
+
+                await _jsRuntime.InvokeVoidAsync("destroyContainer");
+
+
                 var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
                 string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
 

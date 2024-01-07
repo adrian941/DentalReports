@@ -7,11 +7,7 @@
 }
 
 h6 {
-    font-size: 14px;
-    
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    user-select:none;
+
     
  
 }
@@ -35,8 +31,12 @@ h6 {
     height: 40px;
 }
 .el2 {
+    font-size: 14px;
+    
+    text-underline-offset: 3px;
+    user-select: none;
     color: #fff;
-   /* height: 30px;*/
+  
 }
 .el4 {
     color: #fff;
@@ -56,12 +56,14 @@ a {
 }
 video {
     margin: 0;
-    background-color: gray;
+    padding: 5px;
+    background-color: #20204D;
+
     color: white;
     width: 100%;
     max-height: 100%;
     object-fit: contain;
-    border: 1px solid white;
+    
 }
 
 /* PORTRAIT */
@@ -74,7 +76,7 @@ video {
     }
 
     .megagen-upper-btns-container {
-        
+        gap : 10px;
     }
 
     .el2 , .el4 {

@@ -213,34 +213,34 @@
 <script>
     function adjustFooterPosition() {
 
-        let tableContainer = document.getElementById('table-container');
+    //     let tableContainer = document.getElementById('table-container');
 
-        let footer = document.getElementById('footer');
-        let header = document.getElementById('header');
-        let table = document.getElementById('patients-table');
+    //     let footer = document.getElementById('footer');
+    //     let header = document.getElementById('header');
+    //     let table = document.getElementById('patients-table');
 
-        let headerHeight = header.clientHeight;
-        let tableHeight = table.clientHeight;
-        let footerHeight = footer.clientHeight;
+    //     let headerHeight = header.clientHeight;
+    //     let tableHeight = table.clientHeight;
+    //     let footerHeight = footer.clientHeight;
 
-        let sumHeight = headerHeight + tableHeight + footerHeight;
+    //     let sumHeight = headerHeight + tableHeight + footerHeight;
 
-        console.log(sumHeight);
+    //     console.log(sumHeight);
 
-        if (sumHeight >= window.innerHeight) {
-            tableContainer.classList.add('table-container-sticky');
-            tableContainer.classList.remove('table-container-normal');
+    //     if (sumHeight >= window.innerHeight) {
+    //         tableContainer.classList.add('table-container-sticky');
+    //         tableContainer.classList.remove('table-container-normal');
 
 
-        } else {
-            tableContainer.classList.add('table-container-normal');
-            tableContainer.classList.remove('table-container-sticky');
+    //     } else {
+    //         tableContainer.classList.add('table-container-normal');
+    //         tableContainer.classList.remove('table-container-sticky');
 
-        }
-    }
-    window.adjustFooterPosition = adjustFooterPosition;
-    window.addEventListener('resize', adjustFooterPosition);
-    window.addEventListener('load', adjustFooterPosition);
+    //     }
+    // }
+    // window.adjustFooterPosition = adjustFooterPosition;
+    // window.addEventListener('resize', adjustFooterPosition);
+    // window.addEventListener('load', adjustFooterPosition);
 </script>
 
 

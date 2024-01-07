@@ -138,7 +138,7 @@ th {
 
 .modal-filter {
     text-align: left;
-    width: 120px;
+    width: 90px;
     height: 35px;
     padding: 5px;
     margin: 5px;
@@ -170,7 +170,7 @@ th {
 }
 
 input[type=text] {
-    width: 110px;
+    width: 90px;
     height: 35px;
     padding: 5px;
     margin: 5px;

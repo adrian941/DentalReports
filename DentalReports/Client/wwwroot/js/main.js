@@ -3,19 +3,23 @@
 window.isAnimationRunning = true;
 window.initialize3DViewer = function (fileSourcesArray) {
 
-	var element = document.querySelector('.big-container');
-	if (element) {
-		element.remove();
-	}
+ 
 
-	window.spanLoading = document.getElementById('loading-span');
-	spanLoading.style.display = 'visible';
-	spanLoading.style.zIndex = 50;
-	spanLoading.textContent = 'Loading 3D Models...';
-
+ 
+	init();
 	async function init() {
 
-		
+		main();
+		async function main() {
+ 
+			await initMaterials();
+			await initScene();
+			await loadStls();
+			await centerSTLtoScreen();
+			await loadGuiElements();
+  
+			animateScene();
+		}
 	 
 		async function initMaterials() {
 			// When UPDATE THIS , update window.MaterialsJson too
@@ -177,7 +181,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			
 			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 6000);
 			//camera.rotation.order = 'XYZ';
-			
+			 
 			camera.position.set(1800, 2, 20);
 			scene.add(camera);
 
@@ -436,6 +440,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 
 
 			const center = new THREE.Vector3();
+			window.centerOfSTLS = center;
 			combinedBoundingBox.getCenter(center);
 			let translation = new THREE.Vector3().subVectors(new THREE.Vector3(0, 0, 0), center);
 		
@@ -485,7 +490,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				if (window.isAnimationRunning) {
 					
 					updateRenderOrder();
-				
+ 
+
 					controls.update();
 					renderer.render(scene, camera);
 
@@ -494,33 +500,8 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			}
 			animate();
 		}
-		async function main() {
 
-		
-			
-			await initMaterials();
-			await initScene();
-			await loadStls();
-			
-			await centerSTLtoScreen();
- 
-		  
-			await loadGuiElements();
-			 
-		
-		  
-			
-			animateScene();
-		}
-		main();
-
-
-		 
-	 
-	 
-
-	  
-	 
+  
 
 	}
 	
@@ -528,13 +509,14 @@ window.initialize3DViewer = function (fileSourcesArray) {
 	
 	
 	
-	init();
+	 
 	}
 	
 	
 	window.initScene = function () {
 	 
 		window.isAnimationRunning = true;
+
 	
 	}
 
@@ -548,15 +530,12 @@ window.initialize3DViewer = function (fileSourcesArray) {
 		renderer.forceContextLoss();
  
 
-		var element = document.querySelector('.container-gui');
+		var element = document.querySelector('.big-container');
 		if (element) {
-	 
+		 
 			element.remove();
 		}
-
-
-	
-	
+ 
 		window.container = null;
 	
 	}
