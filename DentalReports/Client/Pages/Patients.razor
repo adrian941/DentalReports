@@ -34,6 +34,19 @@
                                 <span @onclick="SortByDoctor" class="meg-table-header">Doctor  <b>↑↓</b></span>
                             </th>
                         }
+
+                        @* @if (role == RolesMegagen.Doctor)
+                        {
+                            TODO Header for TECHNICIANS 
+                            <th>
+                                <div class="modal-filter" @onclick="OpenTechniciansModal">
+                                    <span class="font-size-10">@DisplayTechnicianTextFilters</span>
+                                    <button @onclick="ClearTechnicianFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
+                                </div>
+                                <div class="meg-sub-filter-space"></div>
+                                <span @onclick="SortByTechnician" class="meg-table-header">Technician  <b>↑↓</b></span>
+                            </th>
+                        } *@
                        
 
                         @* Header for PATIENTS *@
@@ -175,7 +188,7 @@
             {
                 <div class="add-btn-container">
                     <button class="add-button" @onclick="NavigateToAddPatient"></button>
-                    <button @onclick="ReloadPage"> Reload Test </button>
+                    @* <button @onclick="ReloadPage"> Reload Test </button> *@
                 </div>
             }
           

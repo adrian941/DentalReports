@@ -34,6 +34,33 @@ span {
     text-decoration: none;
 }
 
+
+th, td {
+    
+}
+/* Prima coloană să fie 50% din lățimea totală minus 90px */
+th:first-child, td:first-child {
+    width: calc(50vw - 45px);
+    min-width: 50px;
+ 
+}
+
+/* A doua coloană să fie 50% din lățimea totală */
+th:nth-child(2), td:nth-child(2) {
+    width: calc(50vw - 45px);
+    min-width: 50px;
+   
+}
+
+/* A doua coloană să fie 50% din lățimea totală */
+th:nth-child(3), td:nth-child(3) {
+    width: 90px;
+ 
+}
+
+
+
+
 .meg-bottom-row-container {
   
     background-color: var(--megagen-blue);
@@ -138,7 +165,8 @@ th {
 
 .modal-filter {
     text-align: left;
-    width: 90px;
+    width: calc(100% - 5px);
+
     height: 35px;
     padding: 5px;
     margin: 5px;
@@ -162,7 +190,7 @@ th {
 }
 .font-size-10 {
     font-size: 10px;
-    width: 95px;
+    
 }
 .date-filter-width {
     font-size: 10px;
@@ -170,7 +198,8 @@ th {
 }
 
 input[type=text] {
-    width: 90px;
+    /*width: calc(50% - 45px);*/
+    min-width: 40px;
     height: 35px;
     padding: 5px;
     margin: 5px;
@@ -244,7 +273,7 @@ input[type=text] {
     display: flex;
     flex-grow: 0;
     
-    position: fixed;
+    =
     bottom: 0;
     left: 0;
     right: 0;
