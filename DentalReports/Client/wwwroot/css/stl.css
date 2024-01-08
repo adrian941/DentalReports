@@ -13,26 +13,32 @@
     /*border-radius: 20px;*/
     padding: 10px;
     /* border: 1px solid #fff; */
-    gap:8px;
+    gap: 8px;
     overflow: scroll;
-    max-height:100svh; 
-
+    max-height: 100svh;
+   
 }
 
-.big-title{
+.big-title {
+    background-image: url('/images/Controls.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    object-fit: cover;
+    height: 30px!important;
+    width: 30px;
     user-select: none;
     height: 20px;
     font-size: 18px;
-
     display: flex;
+    align-self: flex-end;
     justify-content: center;
     align-items: center;
-
     text-align: end;
-    margin-right:5px;
+    margin-right: 0;
     color: #8093b6;
     cursor: pointer;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     /* border-bottom: 1px dashed #ffffff !important; */
     padding-bottom: 4px !important;
 }

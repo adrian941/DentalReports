@@ -259,7 +259,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			bigTitle.className = 'big-title';
 		 
 			bigTitle.classList.add('minimized');	
-			bigTitle.textContent = 'Controls';
+		 
 			bigTitle.addEventListener('click', function () {	
 				bigContainer.classList.toggle('minimized');
 				bigTitle.classList.toggle('minimized');

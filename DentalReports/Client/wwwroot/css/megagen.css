@@ -269,3 +269,8 @@ button {
 .app-color {
     background-color: #20204D;
 }
+
+.video-button {
+    margin-left: 2px;
+    margin-right: 2px;
+}
