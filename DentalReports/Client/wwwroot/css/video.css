@@ -6,10 +6,8 @@
     display: none!important;
 }
 
-h6 {
-
-    
- 
+.megagen-upper-btns-container {
+    margin-top: 10px;
 }
 
 /* media query just for landscape*/
@@ -26,6 +24,7 @@ h6 {
 .video-container {
     
 }
+
 
 .el1 {
     height: 40px;
@@ -75,10 +74,12 @@ video {
         gap: 1.2rem;
     }
 
-    .megagen-upper-btns-container {
-        gap : 10px;
+
+    .pdf-button , .stl-button , .video-button , .menu-button{
+        width: 35px;
     }
 
+    
     .el2 , .el4 {
         margin-left: 5px;
     }
