@@ -35,28 +35,24 @@ span {
 }
 
 
-th, td {
-    
-}
-/* Prima coloană să fie 50% din lățimea totală minus 90px */
+ 
 th:first-child, td:first-child {
     width: calc(50vw - 45px);
-    min-width: 50px;
+    min-width: 95px;
  
 }
-
-/* A doua coloană să fie 50% din lățimea totală */
-th:nth-child(2), td:nth-child(2) {
-    width: calc(50vw - 45px);
-    min-width: 50px;
-   
-}
-
-/* A doua coloană să fie 50% din lățimea totală */
-th:nth-child(3), td:nth-child(3) {
-    width: 90px;
  
-}
+    th:nth-child(2), td:nth-child(2) {
+        width: calc(50vw - 45px);
+        min-width: 95px;
+ 
+    }
+
+ 
+    th:nth-child(3), td:nth-child(3) {
+        width: 90px;
+ 
+    }
 
 
 
@@ -192,6 +188,11 @@ th {
     font-size: 10px;
     
 }
+.span-doctors-modal {
+    width: calc(100% - 18px);
+}
+
+
 .date-filter-width {
     font-size: 10px;
     width: 67px;

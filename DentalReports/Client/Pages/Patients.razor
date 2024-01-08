@@ -27,7 +27,7 @@
                             @* Header for DOCTORS *@
                             <th>
                                 <div class="modal-filter" @onclick="OpenDoctorsModal">
-                                    <span  class="font-size-10">@DisplayDoctorTextFilters</span>
+                                    <span class="span-doctors-modal">@DisplayDoctorTextFilters</span>
                                     <button @onclick="ClearDoctorsFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
                                 </div>
                                 <div class="meg-sub-filter-space"></div>
@@ -53,7 +53,7 @@
                         <th>
                             <input type="text" @oninput="HandleNameFiltered" class="modal-filter font-size-10" placeholder="search patients"></input>
                             <div class="meg-sub-filter-space"></div>
-                            <span  @onclick="SortByName" class="meg-table-header">Name <b>↑↓</b></span>
+                            <span  @onclick="SortByName" class="meg-table-header">Patient <b>↑↓</b></span>
                         </th>
 
                         @* Header for DATE *@
@@ -311,6 +311,8 @@
     }
     public async Task FetchFromLocalStorageAsync()
     {
+        
+
         role = await _localStorage.GetItemAsync<string>("role") ?? "";
         //fetch OriginalDoctors from LocalStorage
         try
