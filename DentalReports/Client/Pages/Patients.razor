@@ -175,6 +175,7 @@
             {
                 <div class="add-btn-container">
                     <button class="add-button" @onclick="NavigateToAddPatient"></button>
+                    <button @onclick="ReloadPage"> Reload Test </button>
                 </div>
             }
           
@@ -278,7 +279,10 @@
 
 
     private string role = "";
-
+    private async Task ReloadPage()
+    {
+        await _jsRuntime.InvokeVoidAsync("location.reload", true);
+    }
 
     protected override async Task OnInitializedAsync ()
     {
