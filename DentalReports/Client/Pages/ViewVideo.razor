@@ -1,5 +1,6 @@
 ﻿@page "/view-video/{id}"
 @using System.Net;
+@using System.Security.Claims
 @inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
 @inject NavigationManager navigationManager
@@ -111,8 +112,20 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+        ClaimsPrincipal? currentUser = null;
+        string role = "";
+
+        try
+        {
+            currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+            role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+        }
+        catch (Exception)
+        {
+            //navigate to Login Page
+            navigationManager.NavigateTo($"/Login", true);
+            return;
+        }
 
 
 

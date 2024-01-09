@@ -505,7 +505,7 @@
         ModalOptions options = new ModalOptions();
         options.DisableBackgroundCancel = false;
 
-        var modalWindows = _modal.Show<ModalDoctorsFilter>("Choose Technicians", parameters, options);
+        var modalWindows = _modal.Show<ModalTechniciansFilter>("Choose Technicians", parameters, options);
         var result = await modalWindows.Result;
 
         if (result.Cancelled)
@@ -524,10 +524,10 @@
         }
         else
         {
-            DisplayTechnicianTextFilters = $"No Technicians selected";
+            DisplayTechnicianTextFilters = $"No Techs. selected";
         }
 
-
+        ApplyAllFilters();
 
     }
     private async void OpenDoctorsModal()

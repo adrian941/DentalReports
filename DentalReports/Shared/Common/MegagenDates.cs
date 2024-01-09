@@ -17,12 +17,7 @@ public static class MegagenDates
     }
     public static string GetMegagenLongDate(DateTime date)
     {
-        string htmlSpaceCode = "&nbsp;";
-        
-    
-        
-
-
+ 
         return $"{date.Day.ToString()}-{GetShortMonth(date.Month)}-{date.Year}";
     }
 

@@ -1,5 +1,4 @@
-﻿e
-
+﻿ 
 <EditForm Model="OriginalDoctors" OnValidSubmit="HandleValidSubmit">
     <div class="form-group">
 
@@ -26,6 +25,7 @@
 
 
     [Parameter] public List<DisplayDoctor>? OriginalDoctors { get; set; }
+
     public List<DisplayDoctor>? FilteredDoctors = new List<DisplayDoctor>();
 
     public List<DisplayDoctorViewModel> DisplayDoctors { get; set; } = new List<DisplayDoctorViewModel>();

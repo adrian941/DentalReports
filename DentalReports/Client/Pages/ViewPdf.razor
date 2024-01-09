@@ -1,4 +1,5 @@
 ﻿@page "/view-pdf/{id}"
+@using System.Security.Claims
 @inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
 @inject NavigationManager navigationManager
@@ -39,7 +40,7 @@
     [Parameter]
     public string? Id { get; set; }
     DisplayPatient displayPatient = new DisplayPatient();
-  
+
     private string PdfSource = @"";
 
 
@@ -62,7 +63,7 @@
     }
 
 
-     
+
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -70,10 +71,21 @@
         if (firstRender)
         {
 
-            var currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-            string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+            ClaimsPrincipal? currentUser = null;
+            string role = "";
 
-            if (role == RolesMegagen.Technician)
+            try
+            {
+                currentUser = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+                role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
+            }catch(Exception)
+            {
+                //navigate to Login Page
+                navigationManager.NavigateTo($"/Login", true);
+                return;
+            }
+
+        if (role == RolesMegagen.Technician)
             {
                 try
                 {
