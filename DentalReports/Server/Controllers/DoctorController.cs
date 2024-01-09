@@ -1,6 +1,8 @@
 ﻿using DentalReports.Server.Data;
+using Duende.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DentalReports.Server.Controllers; 
 
@@ -132,7 +134,7 @@ public class DoctorController : ControllerBase
         List<DisplayDoctor> displayDoctor = new List<DisplayDoctor>();
 
         ApplicationUser currentDoctorUser = ( await _userManager.GetUserAsync(User) )!;
-        Doctor currentDoctor = _dbContext.Doctors.FirstOrDefault(d => d.Email == currentDoctorUser.Email)!;
+        Doctor currentDoctor = _dbContext.Doctors.FirstOrDefault(d => d.Email.ToLower().Trim() == currentDoctorUser.Email!.ToLower().Trim())!;
 
         displayDoctor.Add( new DisplayDoctor
         {
@@ -146,7 +148,33 @@ public class DoctorController : ControllerBase
  
     }
 
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayDoctor>>> getTechnicians()
+    {
+        ApplicationUser? currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return BadRequest("User does not exist");
+        }
 
+        Doctor? currentDoctor = _dbContext.Doctors.Include(d=>d.Technicians)
+            .Where(d => d.Email.ToLower().Trim() == currentUser.Email!.ToLower().Trim())
+            .FirstOrDefault();
+
+        List<Technician> technicians = currentDoctor!.Technicians.ToList();
+
+        var displayTechnicians = technicians.Select(t => new DisplayTechnician
+        {
+          
+            FirstName = _userManager.FindByEmailAsync(t.Email).Result!.FirstName,
+            LastName = _userManager.FindByEmailAsync(t.Email).Result!.LastName,
+            Email = t.Email!,
+            Id = t.Id 
+        }).ToList();
+
+        return Ok(displayTechnicians);
+
+    }
 
 
 

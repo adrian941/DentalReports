@@ -8,9 +8,19 @@ namespace DentalReports.Shared.DisplayModels;
 
 public class DisplayTechnician
 {
+
+    public int Id { get; set; } = 0;
     public string? FirstName { get; set; } = "";
     public string? LastName { get; set; } = "";
 
     [EmailAddress]
     public string? Email { get; set; } = "";
+
+    public DisplayTechnician()
+    {
+        Id = 0;
+        FirstName = "";
+        LastName = "";
+        Email = "";
+    }
 }

@@ -29,6 +29,8 @@ public class TechnicianController : ControllerBase
         _config = config;
         _httpClient = httpClient;
     }
+
+    
     public async Task<ActionResult<List<DisplayDoctor>>> GetDoctors()
     {
         ApplicationUser? currentUser = await _userManager.GetUserAsync(User);
@@ -39,7 +41,7 @@ public class TechnicianController : ControllerBase
 
 
         Technician? currentTechnician = _dbContext.Technicians
-           .Where(t => t.Email == currentUser!.Email)
+           .Where(t => t.Email.ToLower().Trim() == currentUser!.Email.ToLower().Trim())
            .FirstOrDefault();
 
         List<Doctor> doctors = currentTechnician!.Doctors.ToList();
@@ -223,7 +225,13 @@ public class TechnicianController : ControllerBase
         List<DisplayPatient> displayPatients = new List<DisplayPatient>();
 
         ApplicationUser currentTechnicianUser = ( await _userManager.GetUserAsync(User) )!;
-        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
+        Technician currentTechnician = new();
+        try {  currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!; }
+        catch (Exception ex)
+        {
+            ex = ex ;
+        }
+        
         string technicianFirstName = currentTechnicianUser.FirstName;
         string technicianLastName = currentTechnicianUser.LastName;
         List<Patient> patients = _dbContext.Patients.Where(p => p.TechnicianId == currentTechnician.Id).ToList();
@@ -363,12 +371,33 @@ public class TechnicianController : ControllerBase
         return Ok(displayPatient);
 
 
- 
+
 
     }
 
 
-    //getPatient
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayTechnician>>> getCurrentTechnician()
+    {
+        List<DisplayTechnician> displayTechnicians = new List<DisplayTechnician>();
+
+        ApplicationUser currentTechnicianUser = ( await _userManager.GetUserAsync(User) )!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email!.ToLower().Trim())!;
+
+        displayTechnicians.Add(new DisplayTechnician
+        {
+            Id = currentTechnician.Id,
+            FirstName = currentTechnicianUser.FirstName,
+            LastName = currentTechnicianUser.LastName,
+            Email = currentTechnicianUser.Email,
+        });
+
+        return Ok(displayTechnicians);
+
+
+
+
+    }
 
 
 

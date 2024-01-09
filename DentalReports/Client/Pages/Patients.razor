@@ -35,18 +35,18 @@
                             </th>
                         }
 
-                        @* @if (role == RolesMegagen.Doctor)
+                        @if (role == RolesMegagen.Doctor)
                         {
-                            TODO Header for TECHNICIANS 
+                            @* TODO Header for TECHNICIANS  *@
                             <th>
                                 <div class="modal-filter" @onclick="OpenTechniciansModal">
-                                    <span class="font-size-10">@DisplayTechnicianTextFilters</span>
+                                    <span class="span-doctors-modal">@DisplayTechnicianTextFilters</span>
                                     <button @onclick="ClearTechnicianFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
                                 </div>
                                 <div class="meg-sub-filter-space"></div>
                                 <span @onclick="SortByTechnician" class="meg-table-header">Technician  <b>↑↓</b></span>
                             </th>
-                        } *@
+                        }
                        
 
                         @* Header for PATIENTS *@
@@ -82,6 +82,10 @@
                             @if (role == RolesMegagen.Technician)
                             {
                                 <td>@patient.DoctorFirstName @patient.DoctorLastName.ToUpper()</td>
+                            }
+                            else if (role == RolesMegagen.Doctor)
+                            {
+                                <td>@patient.TechnicianFirstName @patient.TechnicianLastName.ToUpper()</td>
                             }
 
                             <td>@patient.FirstName @patient.LastName.ToUpper()</td>
@@ -267,6 +271,9 @@
     private List<DisplayDoctor> OriginalDoctors = new List<DisplayDoctor>();
     private List<DisplayDoctor> FilteredDoctors = new List<DisplayDoctor>();
 
+    private List<DisplayTechnician> OriginalTechnicians = new List<DisplayTechnician>();
+    private List<DisplayTechnician> FilteredTechnicians = new List<DisplayTechnician>();
+
 
 
     // Paginator Data 
@@ -280,12 +287,14 @@
 
     // Sortings 
     private string DoctorSortingMode = SortingMode.Descending;
+    private string TechnicianSortingMode = SortingMode.Descending;
     private string NameSortingMode = SortingMode.Descending;
     private string DateSortingMode = SortingMode.Descending;
 
     // Search-Table Filters
     private string PatientNameFilter = "";
     private string DisplayDoctorTextFilters = "Select Doctors";
+    private string DisplayTechnicianTextFilters = "Select Technicians";
     private MarkupString DisplayDateFilter = (MarkupString)$"Select Period";
     private DateTime FromDateFilter = DateTime.MinValue;
     private DateTime ToDateFilter = DateTime.MaxValue;
@@ -311,21 +320,33 @@
     }
     public async Task FetchFromLocalStorageAsync()
     {
-        
 
-        role = await _localStorage.GetItemAsync<string>("role") ?? "";
+
+        try
+        {
+            role = await _localStorage.GetItemAsync<string>("role") ?? "";
+        }catch(Exception )
+        {
+            role = "";
+        }
+
         //fetch OriginalDoctors from LocalStorage
         try
         {
             var doctors = await _localStorage.GetItemAsync<List<DisplayDoctor>>("doctors") ?? new List<DisplayDoctor>();
             var patients = await _localStorage.GetItemAsync<List<DisplayPatient>>("patients") ?? new List<DisplayPatient>();
+            var technicians = await _localStorage.GetItemAsync<List<DisplayTechnician>>("technicians") ?? new List<DisplayTechnician>();
 
             OriginalPatients = patients;
             OriginalDoctors = doctors;
+            OriginalTechnicians = technicians;
 
             FilteredPatients = OriginalPatients;
             DisplayPatients = OriginalPatients;
+
             FilteredDoctors = OriginalDoctors;
+            FilteredTechnicians = OriginalTechnicians;
+
             await InitPaginatorAsync();
             StateHasChanged();
         }
@@ -340,7 +361,11 @@
     {
         List<DisplayPatient>? patients = null;
         List<DisplayDoctor>? doctors = null;
+        List<DisplayTechnician>? technicians = null;
+        
 
+
+        //Get Role
         var User = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
 
         if (role != User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!)    
@@ -348,44 +373,62 @@
             role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value!;
             await _localStorage.SetItemAsync<string>("role", role);
         }
+
+
+        //localStorage
         if (role == RolesMegagen.Technician)
         {
             patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
             doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/getDoctors") ?? new List<DisplayDoctor>();
+            technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/technician/getCurrentTechnician") ?? new List<DisplayTechnician>();
 
         }
         else if (role == RolesMegagen.Doctor)
         {
             patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
             doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/doctor/getCurrentDoctor") ?? new List<DisplayDoctor>();
+            technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/doctor/getTechnicians") ?? new List<DisplayTechnician>();
         }
         else
         {
             return; // Let just the default HTML messages to be displayed
         }
 
+
+
+
+
+
+
+
         //doctors
         if (!doctors.SequenceEqual(OriginalDoctors) || !patients.SequenceEqual(OriginalPatients))
         {
             OriginalPatients = patients;
             OriginalDoctors = doctors;
+            OriginalTechnicians = technicians;
 
             FilteredPatients = OriginalPatients;
             DisplayPatients = OriginalPatients;
+            
             FilteredDoctors = OriginalDoctors;
+            FilteredTechnicians = OriginalTechnicians;
 
             await InitPaginatorAsync();
             StateHasChanged();
 
             await _localStorage.SetItemAsync<List<DisplayDoctor>>("doctors", OriginalDoctors);
             await _localStorage.SetItemAsync<List<DisplayPatient>>("patients", OriginalPatients);
+            await _localStorage.SetItemAsync<List<DisplayTechnician>>("technicians", OriginalTechnicians);
+   
         }
+        
 
 
 
 
 
-
+     
 
 
 
@@ -409,8 +452,8 @@
         {
             paginator_EntriesPerPage = Math.Min(10, paginator_TotalRows);
         }
-            paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
-                             + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
+        paginator_PagesNumber = paginator_TotalRows / paginator_EntriesPerPage
+                         + (paginator_TotalRows % paginator_EntriesPerPage == 0 ? 0 : 1);
 
 
         try {
@@ -421,7 +464,7 @@
         {
             paginator_CurrentPage = 1;
         }
-   
+
         DisplayPatients = DisplayPatients.OrderByDescending(x => x.DateAdded).ToList();
         FilteredPatients = DisplayPatients.Skip((paginator_CurrentPage - 1) * paginator_EntriesPerPage).Take(paginator_EntriesPerPage).ToList();
 
@@ -454,7 +497,10 @@
 
 
 
-
+    private async void OpenTechniciansModal()
+    {
+        //TODO : When we want to sort by technicians
+    }
     private async void OpenDoctorsModal()
     {
         ModalParameters parameters = new ModalParameters();
@@ -524,6 +570,15 @@
         DisplayDoctorTextFilters = $"Select Doctors";
         ApplyAllFilters();
     }
+
+private void ClearTechnicianFilter()
+    {
+        FilteredTechnicians = OriginalTechnicians;
+
+        DisplayTechnicianTextFilters = $"Select Technicians";
+        ApplyAllFilters();
+    }
+
     private void ClearDateFilter()
     {
         FromDateFilter = DateTime.MinValue;
@@ -572,6 +627,22 @@
         {
             DoctorSortingMode = SortingMode.Descending;
             DisplayPatients = DisplayPatients.OrderByDescending(x => x.DoctorFirstName).ToList();
+        }
+        paginator_CurrentPage = 1;
+        PaginatorChanged();
+    }
+
+    private void SortByTechnician()
+    {
+        if(TechnicianSortingMode == SortingMode.Descending)
+        {
+            TechnicianSortingMode = SortingMode.Ascending;
+            DisplayPatients = DisplayPatients.OrderBy(x => x.TechnicianFirstName).ToList();
+        }
+        else if(TechnicianSortingMode == SortingMode.Ascending)
+        {
+            TechnicianSortingMode = SortingMode.Descending;
+            DisplayPatients = DisplayPatients.OrderByDescending(x => x.TechnicianFirstName).ToList();
         }
         paginator_CurrentPage = 1;
         PaginatorChanged();
@@ -638,6 +709,14 @@
             (
                 FilteredDoctors.Any(doc => doc.FirstName!.Trim().ToLower() == pat.DoctorFirstName.ToLower().Trim() &&   // If we Filtered by Doctors
                                             doc.LastName!.Trim().ToLower() == pat.DoctorLastName.ToLower().Trim()
+             )
+             &&
+             (
+
+
+                FilteredTechnicians.Any(tech => tech.FirstName!.Trim().ToLower() == pat.TechnicianFirstName.ToLower().Trim() &&   // If we Filtered by Technicians
+                                            tech.LastName!.Trim().ToLower() == pat.TechnicianLastName.ToLower().Trim()
+             )
              )
 
 

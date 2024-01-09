@@ -119,7 +119,7 @@ namespace DentalReports.Server.Data.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Doctors");
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("DentalReports.Shared.Models.Patient", b =>
@@ -162,7 +162,7 @@ namespace DentalReports.Server.Data.Migrations
                     b.HasIndex("DateAdded", "FirstName", "LastName", "DoctorId", "TechnicianId")
                         .IsUnique();
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("DentalReports.Shared.Models.PatientFile", b =>
@@ -188,7 +188,7 @@ namespace DentalReports.Server.Data.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("PatientFiles");
+                    b.ToTable("PatientFiles", (string)null);
                 });
 
             modelBuilder.Entity("DentalReports.Shared.Models.Technician", b =>
@@ -212,7 +212,7 @@ namespace DentalReports.Server.Data.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Technicians");
+                    b.ToTable("Technicians", (string)null);
                 });
 
             modelBuilder.Entity("DoctorTechnician", b =>

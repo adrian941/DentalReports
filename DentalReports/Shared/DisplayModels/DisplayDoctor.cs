@@ -16,15 +16,7 @@ public class DisplayDoctor
     [EmailAddress]
     public string? Email { get; set; } = "";
 
- 
-    public DisplayDoctor(int id, string firstName, string lastName, string email)
-    {
-        Id = id;
-        FirstName = firstName;
-        LastName = lastName;
-        Email = email;
-    }
-
+  
     public DisplayDoctor()
     {
         Id = 0;
