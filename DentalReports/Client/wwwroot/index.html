@@ -106,6 +106,8 @@
         const openMegagenPdf = function (PdfSource) {
             pdfjsLib.getDocument(PdfSource).promise.then(function (pdfDoc) {
                 var container = document.getElementById("pdfViewer");
+                
+
                 for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
                     pdfDoc.getPage(pageNumber).then(function (page) {
                         var canvasContainer = document.createElement("div");
@@ -120,6 +122,12 @@
                         canvas.height = viewport.height;
 
                         page.render({ canvasContext: context, viewport: viewport });
+
+                        if (pageNumber === 1) {
+                            var header = document.createElement("div");
+                            header.className = "pdfHeader";
+                            canvasContainer.appendChild(header);
+                        } 
 
                         canvasContainer.appendChild(canvas);
                         container.appendChild(canvasContainer);

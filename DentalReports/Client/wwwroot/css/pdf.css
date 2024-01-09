@@ -62,3 +62,21 @@
         
     }
 }
+
+.canvas {
+  border-bottom: 0!important;
+}
+
+/*   except last-child   */
+.canvas-container:not(:last-child) {
+    border-bottom: 0.1vw solid #20204d;
+}
+
+.pdfHeader{
+    background-color: #20204d;
+    height : 55px;
+}
+
+body {
+    background-color: #20204d;
+}
