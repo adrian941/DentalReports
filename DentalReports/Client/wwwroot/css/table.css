@@ -33,24 +33,28 @@ span {
     color: var(--megagen-blue);
     text-decoration: none;
 }
-
+@media screen and (max-width: 400px){
+    .meg-table-header {
+        font-size: 13.5px;
+    }
+}
 
  
 th:first-child, td:first-child {
-    width: calc(50vw - 45px);
+    width: calc(50vw - 47px);
     min-width: 95px;
  
 }
  
     th:nth-child(2), td:nth-child(2) {
-        width: calc(50vw - 45px);
+        width: calc(50vw - 47px);
         min-width: 95px;
  
     }
 
  
     th:nth-child(3), td:nth-child(3) {
-        width: 90px;
+        width: 94px;
  
     }
 
@@ -182,7 +186,7 @@ th {
     justify-content: space-between;
 }
 .date-modal-filter-width {
-    width: 90px;
+    width: 91px;
 }
 .font-size-10 {
     font-size: 10px;
@@ -195,7 +199,7 @@ th {
 
 .date-filter-width {
     font-size: 10px;
-    width: 67px;
+    width: 69px;
 }
 
 input[type=text] {

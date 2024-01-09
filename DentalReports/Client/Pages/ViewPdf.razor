@@ -1,7 +1,7 @@
 ﻿@page "/view-pdf/{id}"
 @inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
-@inject NavigationManager _navigationManager
+@inject NavigationManager navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
 
 <head>
@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js" async></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta property="og:title" content="@ogTitle">
 </head>
 
 
@@ -34,6 +34,8 @@
 
 @code {
 
+    private string ogTitle = "Megagen Reports";
+
     [Parameter]
     public string? Id { get; set; }
     DisplayPatient displayPatient = new DisplayPatient();
@@ -48,15 +50,15 @@
 
     private void OpenStl()
     {
-        _navigationManager.NavigateTo($"view-stl/{Id}");
+        navigationManager.NavigateTo($"view-stl/{Id}");
     }
     private void OpenMenu()
     {
-        _navigationManager.NavigateTo($"/");
+        navigationManager.NavigateTo($"/");
     }
     private void OpenVideo()
     {
-        _navigationManager.NavigateTo($"view-video/{Id}");
+        navigationManager.NavigateTo($"view-video/{Id}");
     }
 
 
@@ -72,10 +74,47 @@
             string role = currentUser.Claims.Where(c => c.Type == "role").First().Value;
 
             if (role == RolesMegagen.Technician)
-                displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
-            if (role == RolesMegagen.Doctor)
-                displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+            {
+                try
+                {
+                    displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+                }
+                catch (Exception)
+                {
+                    navigationManager.NavigateTo($"/NotAuthorized", true);
+                    return;
+                }
+                if (displayPatient == null)
+                {
+                    navigationManager.NavigateTo($"/NotAuthorized");
+                    return;
+                }
 
+
+
+
+
+
+            }
+            if (role == RolesMegagen.Doctor)
+            {
+                try
+                {
+                    displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+                }
+                catch (Exception)
+                {
+                    navigationManager.NavigateTo($"/NotAuthorized", true);
+                    return;
+                }
+                if (displayPatient == null)
+                {
+                    navigationManager.NavigateTo($"/NotAuthorized", true);
+                    return;
+                }
+            }
+
+            ogTitle = $"{displayPatient.FirstName} {displayPatient.LastName}";
 
             string pdfFileName = displayPatient.Files.Where(f => f.Name.Trim().ToLower().EndsWith(".pdf")).First().Name;
 

@@ -7,14 +7,14 @@
 
 @inject IJSRuntime jsInterop
 
-
+ 
 
 @inject NavigationManager navigationManager
 
 <head>
     <link rel="stylesheet" href="css/megagen.css">
     <link rel="stylesheet" href="css/stl.css">
- 
+    <meta property="og:title" content="@ogTitle">
     <script>
         function destroyContainer() {
 
@@ -81,14 +81,14 @@
 
 
 @code {
-
+    private String ogTitle = "Megagen Reports";
     [Parameter]
     public string? Id { get; set; } 
 
 
     DisplayPatient displayPatient = new DisplayPatient();
 
-  
+
     protected override async Task OnParametersSetAsync()
     {
 
@@ -99,12 +99,47 @@
 
 
         if (role == RolesMegagen.Technician)
-            displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+        {
+            try
+            {
+                displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/technician/getPatient/{Id}"))!;
+            }
+            catch (Exception)
+            {
+                navigationManager.NavigateTo($"/NotAuthorized", true);
+                return;
+            }
+            if (displayPatient == null)
+            {
+                navigationManager.NavigateTo($"/NotAuthorized");
+                return;
+            }
+
+
+
+
+
+
+        }
         if (role == RolesMegagen.Doctor)
-            displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+        {
+            try
+            {
+                displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+            }
+            catch (Exception)
+            {
+                navigationManager.NavigateTo($"/NotAuthorized", true);
+                return;
+            }
+            if (displayPatient == null)
+            {
+                navigationManager.NavigateTo($"/NotAuthorized", true);
+                return;
+            }
+        }
 
- 
-
+        ogTitle = $"{displayPatient.FirstName} {displayPatient.LastName}";
 
 
 

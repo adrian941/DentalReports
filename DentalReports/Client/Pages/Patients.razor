@@ -44,7 +44,7 @@
                                     <button @onclick="ClearTechnicianFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
                                 </div>
                                 <div class="meg-sub-filter-space"></div>
-                                <span @onclick="SortByTechnician" class="meg-table-header">Technician  <b>↑↓</b></span>
+                                <span @onclick="SortByTechnician" class="meg-table-header" >Technician  <b>↑↓</b></span>
                             </th>
                         }
                        
@@ -89,7 +89,7 @@
                             }
 
                             <td>@patient.FirstName @patient.LastName.ToUpper()</td>
-                            <td>@patient.DateAdded.ToShortDateString()</td>
+                            <td> @((MarkupString)MegagenDates.GetMegagenLongDate(patient.DateAdded))</td>
                         </tr>
 
                         if (nr == selectedRow)
@@ -362,7 +362,7 @@
         List<DisplayPatient>? patients = null;
         List<DisplayDoctor>? doctors = null;
         List<DisplayTechnician>? technicians = null;
-        
+
 
 
         //Get Role
@@ -410,7 +410,7 @@
 
             FilteredPatients = OriginalPatients;
             DisplayPatients = OriginalPatients;
-            
+
             FilteredDoctors = OriginalDoctors;
             FilteredTechnicians = OriginalTechnicians;
 
@@ -420,15 +420,15 @@
             await _localStorage.SetItemAsync<List<DisplayDoctor>>("doctors", OriginalDoctors);
             await _localStorage.SetItemAsync<List<DisplayPatient>>("patients", OriginalPatients);
             await _localStorage.SetItemAsync<List<DisplayTechnician>>("technicians", OriginalTechnicians);
-   
+
         }
-        
 
 
 
 
 
-     
+
+
 
 
 
@@ -499,7 +499,36 @@
 
     private async void OpenTechniciansModal()
     {
-        //TODO : When we want to sort by technicians
+        ModalParameters parameters = new ModalParameters();
+        parameters.Add("OriginalTechnicians", OriginalTechnicians);
+
+        ModalOptions options = new ModalOptions();
+        options.DisableBackgroundCancel = false;
+
+        var modalWindows = _modal.Show<ModalDoctorsFilter>("Choose Technicians", parameters, options);
+        var result = await modalWindows.Result;
+
+        if (result.Cancelled)
+        {
+            return;
+        }
+        FilteredTechnicians = ((List<DisplayTechnician>)(result.Data!))!;
+
+        if (FilteredTechnicians.Count > 1)
+        {
+            DisplayTechnicianTextFilters = $"{FilteredTechnicians.Count} Technicians selected";
+        }
+        else if (FilteredTechnicians.Count == 1)
+        {
+            DisplayTechnicianTextFilters = $"{FilteredTechnicians[0].FirstName} {FilteredTechnicians[0].LastName}";
+        }
+        else
+        {
+            DisplayTechnicianTextFilters = $"No Technicians selected";
+        }
+
+
+
     }
     private async void OpenDoctorsModal()
     {
@@ -537,6 +566,7 @@
 
 
 
+    
 
     private async void OpenDateModal()
     {
@@ -558,7 +588,10 @@
         FromDateFilter = ((Dates)(result.Data!))!.FromDate;
         ToDateFilter = ((Dates)(result.Data!))!.ToDate;
 
-        DisplayDateFilter = (MarkupString)$"{FromDateFilter.ToShortDateString()} to <br /> {ToDateFilter.ToShortDateString()}";
+  
+
+
+        DisplayDateFilter = (MarkupString)$"{MegagenDates.GetMegagenShortDate(FromDateFilter)} to <br /> {MegagenDates.GetMegagenShortDate(ToDateFilter)}";
 
         ApplyAllFilters();
     }
@@ -621,12 +654,12 @@ private void ClearTechnicianFilter()
         if (DoctorSortingMode == SortingMode.Descending)
         {
             DoctorSortingMode = SortingMode.Ascending;
-            DisplayPatients = DisplayPatients.OrderBy(x => x.DoctorFirstName).ToList();
+            DisplayPatients = DisplayPatients.OrderBy(x => x.DoctorFirstName).ThenBy(x => x.DoctorLastName).ToList();
         }
         else if (DoctorSortingMode == SortingMode.Ascending)
         {
             DoctorSortingMode = SortingMode.Descending;
-            DisplayPatients = DisplayPatients.OrderByDescending(x => x.DoctorFirstName).ToList();
+            DisplayPatients = DisplayPatients.OrderByDescending(x => x.DoctorFirstName).ThenByDescending(x => x.DoctorLastName).ToList();
         }
         paginator_CurrentPage = 1;
         PaginatorChanged();
@@ -637,12 +670,12 @@ private void ClearTechnicianFilter()
         if(TechnicianSortingMode == SortingMode.Descending)
         {
             TechnicianSortingMode = SortingMode.Ascending;
-            DisplayPatients = DisplayPatients.OrderBy(x => x.TechnicianFirstName).ToList();
+            DisplayPatients = DisplayPatients.OrderBy(x => x.TechnicianFirstName).ThenBy(x => x.TechnicianLastName).ToList();
         }
         else if(TechnicianSortingMode == SortingMode.Ascending)
         {
             TechnicianSortingMode = SortingMode.Descending;
-            DisplayPatients = DisplayPatients.OrderByDescending(x => x.TechnicianFirstName).ToList();
+            DisplayPatients = DisplayPatients.OrderByDescending(x => x.TechnicianFirstName).ThenByDescending(x => x.TechnicianLastName).ToList();
         }
         paginator_CurrentPage = 1;
         PaginatorChanged();
