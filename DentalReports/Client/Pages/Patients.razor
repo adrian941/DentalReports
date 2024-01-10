@@ -893,22 +893,22 @@ private void ClearTechnicianFilter()
 
 
 
-    public void ShowPatient(int PatientId)
-    {
-        _navigationManager.NavigateTo($"/view-patient/{PatientId}");
-    }
+    // public void ShowPatient(int PatientId)
+    // {
+    //     _navigationManager.NavigateTo($"/view-patient/{PatientId}");
+    // }
     public void ShowVideo(int PatientId)
     {
-        _navigationManager.NavigateTo($"/view-video/{PatientId}");
+        _navigationManager.NavigateTo($"/video/{PatientId}");
     }
     public void ShowStl(int PatientId)
     {
-        _navigationManager.NavigateTo($"/view-stl/{PatientId}");
+        _navigationManager.NavigateTo($"/3d-viewer/{PatientId}");
     }
 
     public void ShowPdf(int PatientId)
     {
-        _navigationManager.NavigateTo($"/view-pdf/{PatientId}");
+        _navigationManager.NavigateTo($"/pdf/{PatientId}");
     }
     public async void ShowTrashModal(int PatientId)
     {

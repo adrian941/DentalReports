@@ -1,4 +1,4 @@
-﻿@page "/view-stl/{id}"
+﻿@page "/3d-viewer/{id}"
 @inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
 @using Microsoft.AspNetCore.Components
@@ -167,11 +167,11 @@
 
     private void OpenPdf()
     {
-        navigationManager.NavigateTo($"view-pdf/{Id}");
+        navigationManager.NavigateTo($"pdf/{Id}");
     }
     private void OpenVideo()
     {
-        navigationManager.NavigateTo($"view-video/{Id}");
+        navigationManager.NavigateTo($"video/{Id}");
     }
     private void OpenMenu()
     {
@@ -186,7 +186,7 @@
     {
 
      
-        if (!args.Location.Contains("view-stl"))
+        if (!args.Location.Contains("3D"))
         {
             _jsRuntime.InvokeVoidAsync("destroy");
 

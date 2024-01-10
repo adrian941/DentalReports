@@ -1,4 +1,4 @@
-﻿@page "/view-video/{id}"
+﻿@page "/video/{id}"
 @using System.Net;
 @using System.Security.Claims
 @inject HttpClient _httpClient
@@ -98,11 +98,11 @@
     }
     private void OpenPdf()
     {
-        navigationManager.NavigateTo($"view-pdf/{Id}");
+        navigationManager.NavigateTo($"pdf/{Id}");
     }
     private void OpenStl()
     {
-        navigationManager.NavigateTo($"view-stl/{Id}");
+        navigationManager.NavigateTo($"3d-viewer/{Id}");
     }
     private void OpenMenu()
     {

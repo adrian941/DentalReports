@@ -1,4 +1,4 @@
-﻿@page "/view-pdf/{id}"
+﻿@page "/pdf/{id}"
 @using System.Security.Claims
 @inject HttpClient _httpClient
 @inject IJSRuntime _jsRuntime
@@ -52,7 +52,7 @@
 
     private void OpenStl()
     {
-        navigationManager.NavigateTo($"view-stl/{Id}");
+        navigationManager.NavigateTo($"3d-viewer/{Id}");
     }
     private void OpenMenu()
     {
@@ -60,7 +60,7 @@
     }
     private void OpenVideo()
     {
-        navigationManager.NavigateTo($"view-video/{Id}");
+        navigationManager.NavigateTo($"video/{Id}");
     }
 
 
