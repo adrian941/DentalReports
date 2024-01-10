@@ -25,7 +25,7 @@ public static class MegagenUtility
             case ".mp4":
                 return "video/mp4";
             case ".stl":
-                return "application/sla"; //TODO: Research despre .stl pt toate tipurile de browsere!
+                return "application/sla"; //TODO: Research about .stl for all browser types
             default:
                 return "application/octet-stream";
 
