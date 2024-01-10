@@ -46,7 +46,7 @@
         //  [Route("/api/technician/deletePatient/{PatientId}")]
         
         await _httpClient.DeleteAsync($"api/technician/deletePatient/{PatientId}");
-        await ModalInstance.CloseAsync(ModalResult.Ok("Deleted!"));
+        await ModalInstance!.CloseAsync(ModalResult.Ok("Deleted!"));
     }
 
     private async Task Cancel()

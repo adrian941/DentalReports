@@ -41,7 +41,7 @@ public class TechnicianController : ControllerBase
 
 
         Technician? currentTechnician = _dbContext.Technicians
-           .Where(t => t.Email.ToLower().Trim() == currentUser!.Email.ToLower().Trim())
+           .Where(t => t.Email.ToLower().Trim() == currentUser!.Email!.ToLower().Trim())
            .FirstOrDefault();
 
         List<Doctor> doctors = currentTechnician!.Doctors.ToList();
@@ -98,7 +98,7 @@ public class TechnicianController : ControllerBase
                         {
                             Email = requestedUser.Email!,
                         };
-        if (currentTechnician.Doctors.Contains(doctor))
+        if (currentTechnician!.Doctors.Contains(doctor))
         {
             return BadRequest($"Doctor {requestedUser.FirstName} {requestedUser.LastName} already exists in your Doctor list!");
         }
@@ -130,7 +130,7 @@ public class TechnicianController : ControllerBase
         {
             return BadRequest($"Invalid Doctor !!");
         }
-        bool isDoctorAssignedToTechnician = doctor.Technicians.Contains(currentTechnician);
+        bool isDoctorAssignedToTechnician = doctor.Technicians.Contains(currentTechnician!);
         if (!isDoctorAssignedToTechnician)
         {
             return BadRequest($"Invalid Doctor !!");
@@ -227,9 +227,9 @@ public class TechnicianController : ControllerBase
         ApplicationUser currentTechnicianUser = ( await _userManager.GetUserAsync(User) )!;
         Technician currentTechnician = new();
         try {  currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!; }
-        catch (Exception ex)
+        catch (Exception )
         {
-            ex = ex ;
+           
         }
         
         string technicianFirstName = currentTechnicianUser.FirstName;

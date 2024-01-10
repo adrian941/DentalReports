@@ -68,7 +68,7 @@ public class AdminController : ControllerBase
         
         Technician newTechnician = new Technician
         {
-            Email = technicianUser.Email,
+            Email = technicianUser!.Email!,
         };
 
         _dbContext.Technicians.Add(newTechnician);
