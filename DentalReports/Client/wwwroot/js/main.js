@@ -36,12 +36,12 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				alphaTest: 0.05,
 			});
 			window.matCraniu2 = new THREE.MeshPhongMaterial({
-				color: 0xCCB266,
+				color: 0x763405,
 				opacity: 1,
 				transparent: true,
-				shininess: 0.1,
-				specular: 0x000000,
-				emissive: 0xE66,
+				shininess: 30,
+				specular: 0x0d0c0c,
+				emissive: 0x2f2b1d,
 				flatShading: false,
 				side: THREE.DoubleSide,
 				alphaTest: 0.05,
