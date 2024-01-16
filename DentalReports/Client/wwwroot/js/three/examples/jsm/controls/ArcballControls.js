@@ -72,13 +72,15 @@ const _cameraMatrixStateTemp = new Matrix4();
 const _scalePointTemp = new Vector3();
 /**
  *
- * @param {Camera} camera Virtual camera used in the scene
+ * @param {Camera} camera Vitrtual camera used in the scene
  * @param {HTMLElement} domElement Renderer's dom element
  * @param {Scene} scene The scene to be rendered
  */
 class ArcballControls extends EventDispatcher {
 
 	constructor( camera, domElement, scene = null ) {
+
+		console.log('PLM');
 
 		super();
 		this.camera = null;
@@ -385,7 +387,8 @@ class ArcballControls extends EventDispatcher {
 				case INPUT.ONE_FINGER:
 
 					//singleMove
-					this.updateTouchEvent( event );
+					this.updateTouchEvent(event);
+					console.log("masa");
 
 					this.onSinglePanMove( event, STATE.ROTATE );
 					break;
@@ -904,7 +907,7 @@ class ArcballControls extends EventDispatcher {
 	};
 
 	onSinglePanMove = ( event, opState ) => {
-
+		
 		if ( this.enabled ) {
 
 			const restart = opState != this._state;
@@ -1241,7 +1244,7 @@ class ArcballControls extends EventDispatcher {
 	};
 
 	onDoublePanStart = () => {
-
+		
 		if ( this.enabled && this.enablePan ) {
 
 			this.dispatchEvent( _startEvent );
@@ -1552,6 +1555,9 @@ class ArcballControls extends EventDispatcher {
 
 		_center.x = clientX;
 		_center.y = clientY;
+
+
+		console.log('abc Client: ', _center.x + " " + _center.y);
 
 	};
 

@@ -18,10 +18,11 @@
 
 
 <div class="megagen-upper-btns-container fixed">
-    <button class="pdf-button button-35w button-white"  ></button>
+    <button class="menu-button button-35w button-black " @onclick="OpenMenu"></button>
+    <button class="pdf-button button-35w button-white"  @onclick="OpenPdf"></button>
     <button class="stl-button button-35w button-white" @onclick="OpenStl"></button>
     <button class="video-button button-35w button-white" @onclick="OpenVideo"></button>
-    <button class="menu-button button-35w button-black " @onclick="OpenMenu"></button>
+  
 </div>
 
 @if (@PdfSource != null)
@@ -48,7 +49,10 @@
 
 
 
-
+    private void OpenPdf()
+    {
+        navigationManager.NavigateTo($"pdf/{Id}",true);
+    }
 
     private void OpenStl()
     {

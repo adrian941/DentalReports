@@ -131,7 +131,16 @@ video {
     color: #fff;
     text-align: left;
     text-decoration: none;
+    padding:0;
     padding-bottom: 0;
-    font-size: 12px;
+    font-size: 11px;
     user-select: none;
+    margin-bottom: 9px;
+
+}
+
+.clock {
+    color: #019DD6;
+    font-size: 11px;
+    
 }

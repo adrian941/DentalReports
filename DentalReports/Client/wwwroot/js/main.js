@@ -490,9 +490,13 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				if (window.isAnimationRunning) {
 					
 					updateRenderOrder();
- 
 
+
+
+
+					// Actualizăm matricea de transformare
 					controls.update();
+
 					renderer.render(scene, camera);
 
 					requestAnimationFrame(animate);

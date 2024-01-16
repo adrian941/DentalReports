@@ -17,10 +17,11 @@
 
     <div class="el el1">
         <div class="megagen-upper-btns-container">
+            <button class="menu-button " @onclick="OpenMenu" ></button>
             <button class="pdf-button " @onclick="OpenPdf"></button>
             <button class="stl-button " @onclick="OpenStl"></button>
-            <button class="video-button" ></button>
-            <button class="menu-button " @onclick="OpenMenu"></button>
+            <button class="video-button" @onclick="OpenVideo"></button>
+        
         </div>
 
     </div>
@@ -48,10 +49,10 @@
             if (VideoTitles.Count != 0)
             {
                 int i = 0;
-                foreach (var videoTile in VideoTitles)
+                foreach (var videoTitle in VideoTitles)
                 {
                     i++;
-                    <button class="btn-video" id=@($"btn-{i}") @onclick="()=>SeekToJs(videoTile.seconds)"> @videoTile.title </button>
+                    <button class="btn-video" id=@($"btn-{i}") @onclick="()=>SeekToJs(videoTitle.seconds)"> <span class="clock">@($"{videoTitle.clock_minutes}:{videoTitle.clock_seconds}")</span> @videoTitle.title </button>
                      
 
 
@@ -103,6 +104,10 @@
     private void OpenStl()
     {
         navigationManager.NavigateTo($"3d-viewer/{Id}");
+    }
+    private void OpenVideo()
+    {
+        navigationManager.NavigateTo($"video/{Id}", true);
     }
     private void OpenMenu()
     {
@@ -240,10 +245,16 @@
     {
         public int seconds { get; set; }
         public string title { get; set; }
+        public string clock_minutes { get; set; }
+        public string clock_seconds { get; set; }
+
         public VideoTitle(int seconds, string title)
         {
             this.seconds = seconds;
             this.title = title;
+
+            this.clock_minutes = seconds / 60  + "";
+            this.clock_seconds = (seconds % 60) >= 10 ? "" + (seconds % 60) : "0" + (seconds % 60);
         }
     }
 }

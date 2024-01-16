@@ -62,6 +62,7 @@
 
 		constructor( _camera, domElement, scene = null ) {
 
+		 
 			super();
 
 			this.onWindowResize = () => {
@@ -2061,6 +2062,9 @@
 			this.rotate = ( axis, angle ) => {
 
 				const point = this._gizmos.position; //rotation center
+
+
+
 
 				this._translationMatrix.makeTranslation( - point.x, - point.y, - point.z );
 

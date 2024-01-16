@@ -61,12 +61,13 @@
 </script>
 
 <div class="megagen-upper-btns-container fixed">
+    <button class="menu-button button-35w" @onclick="OpenMenu"></button>
     <button class="pdf-button button-35w" @onclick="OpenPdf"></button>
-    <button class="stl-button button-35w" ></button>
+    <button class="stl-button button-35w" @onclick="OpenStl"></button>
 
     <button class="video-button button-35w" @onclick="OpenVideo"></button>
 
-    <button class="menu-button button-35w" @onclick="OpenMenu"></button>
+   
     @* <button class="refresh-button button-35w" @onclick="Refresh"></button> *@
 </div>
 <canvas 
@@ -172,6 +173,10 @@
     private void OpenVideo()
     {
         navigationManager.NavigateTo($"video/{Id}");
+    }
+    private void OpenStl()
+    {
+        navigationManager.NavigateTo($"3d-viewer/{Id}",true);
     }
     private void OpenMenu()
     {

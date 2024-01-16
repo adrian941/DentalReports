@@ -62,6 +62,8 @@
 
 		constructor(_camera, domElement, scene = null) {
 
+			console.log('PLM');
+		
 			super();
 
 			this.onWindowResize = () => {
@@ -202,6 +204,8 @@
 					switch (this._input) {
 
 						case INPUT.ONE_FINGER:
+
+							console.log("masa2");
 							//singleMove
 							this.updateTouchEvent(event);
 							this.onSinglePanMove(event, STATE.ROTATE);
@@ -707,6 +711,7 @@
 			};
 
 			this.onSinglePanMove = (event, opState) => {
+				
 
 				if (this.enabled) {
 
@@ -1331,6 +1336,10 @@
 
 				_center.x = clientX;
 				_center.y = clientY;
+
+				console.log('abc Client: ', _center.x + " " + _center.y);
+
+
 
 			};
 

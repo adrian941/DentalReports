@@ -1,11 +1,20 @@
 ﻿@using System.Net.Http.Headers
 @using System.Text.RegularExpressions
+@using System.Text.Json.Nodes
+ 
 @attribute [Authorize(Roles = $"{RolesMegagen.Admin}, {RolesMegagen.Technician}")]
 @inject HttpClient _httpClient
+ 
 
 
 <EditForm Model="displayAddPatient" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="Files">Upload Files:</label> <br>
+        <InputFile OnChange="@OnInputFileChange" class="form-control" multiple accept=".pdf,.mp4,.stl,.txt,.json" />
+        <p class="text-danger">@FileErrors</p>
+    </div>   <br>
 
     <div class="form-group">
         <label for="selectDoctor">Select Doctor:</label>
@@ -39,11 +48,7 @@
 
     </div>   <br>
 
-    <div class="form-group">
-        <label for="Files">Upload Files:</label> <br>
-        <InputFile OnChange="@OnInputFileChange" class="form-control" multiple accept=".pdf,.mp4,.stl,.txt,.json" />
-        <p class="text-danger">@FileErrors</p>
-    </div>   <br>
+   
 
 
 
@@ -71,7 +76,7 @@
 
     private bool AreFilesValid = false;
 
-    private void OnInputFileChange(InputFileChangeEventArgs e)
+    private async void OnInputFileChange(InputFileChangeEventArgs e)
     {
         FileErrors = "";
         AreFilesValid = areFilesValid(e);
@@ -91,6 +96,45 @@
 
         foreach (IBrowserFile file in e.GetMultipleFiles(20))
         {
+            if (file.Name == "patient.json")
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    // Citirea conținutului fișierului într-un șir
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var jsonContent = await reader.ReadToEndAsync();
+                        var jsonDocument = JsonDocument.Parse(jsonContent);
+                        var jsonObject = jsonDocument.RootElement;
+
+                        var firstName = jsonObject.GetProperty("FirstName").GetString();
+                        var lastName = jsonObject.GetProperty("LastName").GetString();
+                        var dateAdded = jsonObject.GetProperty("DateAdded").GetString();
+
+                        string doctorEmail = jsonObject.GetProperty("DoctorEmail").GetString();
+                        var selectedDoctorId = displayAddPatient.Doctors.Where(x => x.Email == doctorEmail).FirstOrDefault()!.Id;
+
+
+                        jsonObject.GetProperty("DoctorId").GetInt32();
+
+                        displayAddPatient.SelectedDoctorId = selectedDoctorId;
+                        displayAddPatient.FirstName = firstName;
+                        displayAddPatient.LastName = lastName;
+                        string[] times = dateAdded.Split('-');
+                        displayAddPatient.DateAdded = new DateTime(int.Parse(times[0]), int.Parse(times[1]), int.Parse(times[2]));
+
+                        StateHasChanged();
+
+
+
+                    }
+                }
+
+
+
+                continue;
+            }
+
             var fileContent = new StreamContent(file.OpenReadStream(long.MaxValue));
 
             string fileExtension = Path.GetExtension(file.Name);
@@ -200,7 +244,7 @@
             bool isStlMatch = Regex.IsMatch(fileName, stlRegex);
             bool isPdfMatch = Regex.IsMatch(fileName, pdfRegex);
 
-            if (!(isStlMatch || isPdfMatch || fileName == "_STL_Config.json" || fileName == "_Video_Config.txt" || fileName == "Video_Final.mp4"))
+            if (!(isStlMatch || isPdfMatch || fileName == "_STL_Config.json" || fileName == "_Video_Config.txt" || fileName == "Video_Final.mp4" || fileName == "patient.json"))
             {
                 fileNamesErrors += "'" + fileName + "', ";
                 areFilesCorrect = false;
