@@ -19,4 +19,7 @@ public class Doctor
     public List<Technician> Technicians { get; set; } = new List<Technician>();
     public List<Patient> Patients { get; set; } = new List<Patient>();
 
+    [MaxLength(20)]
+    public string StoragePlan { get; set; } = "BasicDoctor";
+
 }

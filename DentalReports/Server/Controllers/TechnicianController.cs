@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using DentalReports.Server.Data;
+using DentalReports.Shared.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,19 +31,15 @@ public class TechnicianController : ControllerBase
         _httpClient = httpClient;
     }
 
-    
-    public async Task<ActionResult<List<DisplayDoctor>>> GetDoctors()
+
+
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayDoctor>>> getDoctors()
     {
         ApplicationUser? currentUser = await _userManager.GetUserAsync(User);
-        if (currentUser == null)
-        {
-            return BadRequest("User does not exist");
-        }
-
-
+   
         Technician? currentTechnician = _dbContext.Technicians
-           .Where(t => t.Email.ToLower().Trim() == currentUser!.Email!.ToLower().Trim())
-           .FirstOrDefault();
+            .Where(t => t.Email.ToUpper().Trim() == currentUser!.Email!.ToUpper().Trim()).FirstOrDefault();
 
         List<Doctor> doctors = currentTechnician!.Doctors.ToList();
 
@@ -54,11 +51,14 @@ public class TechnicianController : ControllerBase
             Id = d.Id
         }).ToList();
 
+        //exclude from list the doctor with email = "tom.scott@gmail.com"
+
+       
+
 
         return Ok(displayDoctors);
-
-
     }
+
 
     [HttpPost]
     public async Task<ActionResult> AddDoctor(DisplayDoctor displayDoctor)
@@ -106,6 +106,51 @@ public class TechnicianController : ControllerBase
         currentTechnician!.Doctors.Add(doctor);
         await _dbContext.SaveChangesAsync();
 
+
+        //Adding to the doctor the tutorial technician (from _dbContext):  emma.lee@gmail.com
+
+        Technician tutorialTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email.ToUpper().Trim() == "emma.lee@gmail.com")!;
+
+        Doctor fetchedNewDoctor =  _dbContext.Doctors.FirstOrDefault(d => d.Email.ToUpper().Trim() == requestedUser.Email.ToUpper().Trim())!;
+
+        List<PatientFile> patientfiles =
+        [
+            new PatientFile { Name = $"_STL_Config.json", sizeBytes = 0 },
+            new PatientFile { Name = $"_Video_Config.txt", sizeBytes = 0 },
+            new PatientFile { Name = $"Report_1.pdf", sizeBytes = 0 },
+            new PatientFile { Name = $"STL_1.stl", sizeBytes = 0 },
+            new PatientFile { Name = $"STL_2.stl", sizeBytes = 0 },
+            new PatientFile { Name = $"STL_3.stl", sizeBytes = 0 },
+            new PatientFile { Name = $"STL_4.stl", sizeBytes = 0 },
+            new PatientFile { Name = $"STL_5.stl", sizeBytes = 0 },
+            new PatientFile { Name = $"STL_6.stl", sizeBytes = 0 },
+            new PatientFile { Name = $"Video_Final.mp4", sizeBytes = 0 },
+        ];
+
+        Patient newPatient = new Patient
+        {
+            DoctorId = fetchedNewDoctor.Id,    //Foreign key
+            TechnicianId = tutorialTechnician.Id, //Foreign key
+            FirstName = "Alex",
+            LastName = "White",
+            DateAdded = new DateTime(2022, 11, 23),
+            PatientFiles = patientfiles
+        };
+
+        _dbContext.Patients.Add(newPatient);
+        await _dbContext.SaveChangesAsync();
+
+
+
+
+
+
+
+
+
+
+
+
         return Ok($"Doctor {requestedUser.FirstName} {requestedUser.LastName} added to your Doctor list!");
 
     }
@@ -118,12 +163,17 @@ public class TechnicianController : ControllerBase
         {
             return BadRequest("Controller: " + FileErrors);
         }
+       
 
         DisplayAddPatient displayAddPatient = JsonSerializer.Deserialize<DisplayAddPatient>(patientJson)!;
            
         ApplicationUser currentUser = ( await _userManager.GetUserAsync(User) )!;
 
         Technician? currentTechnician = _dbContext.Technicians.Where(t => t.Email.ToUpper().Trim() == currentUser.Email!.ToUpper().Trim()).FirstOrDefault();
+        
+   
+
+        
         int doctorId = displayAddPatient.SelectedDoctorId;
         Doctor doctor = (await _dbContext.Doctors.Where(d => (d.Id == doctorId)).FirstOrDefaultAsync() )!;
         if (doctor == null)
@@ -135,6 +185,14 @@ public class TechnicianController : ControllerBase
         {
             return BadRequest($"Invalid Doctor !!");
         }
+
+        if(doctor.Email.ToLower().Trim() == "tom.scott@gmail.com")
+        {
+            return BadRequest($"You cannot add a patient to the tutorial doctor!");
+        }
+
+
+
         bool patientExists = await _dbContext.Patients.AnyAsync(p => (p.TechnicianId == currentTechnician.Id && p.DoctorId == displayAddPatient.SelectedDoctorId && p.DateAdded == displayAddPatient.DateAdded && p.FirstName == displayAddPatient.FirstName
                                   && p.LastName == displayAddPatient.LastName));
         if (patientExists)
@@ -166,6 +224,8 @@ public class TechnicianController : ControllerBase
 
             newFileNames.Add(new SendFileModel { FileName = fileName, sizeBytes = sizeBytes });
         }
+
+
             
             
             
@@ -220,6 +280,29 @@ public class TechnicianController : ControllerBase
     }
 
     [HttpGet]
+    public async Task<ActionResult<double>> getTotalPatientsSizeGB()
+    {
+        ApplicationUser currentUser = ( await _userManager.GetUserAsync(User) )!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentUser.Email)!;
+
+        long totalSizeBytes = currentTechnician.Patients.SelectMany(p => p.PatientFiles).Sum(pf => pf.sizeBytes);
+        double totalSizeGB = Math.Round((double)totalSizeBytes / (1024 * 1024 * 1024), 2);
+        return Ok(totalSizeGB);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<double>> getStoragePlanGB()
+    {
+        ApplicationUser currentUser = ( await _userManager.GetUserAsync(User) )!;
+        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentUser.Email)!;
+
+        double storagePlanGB = currentTechnician.sizeStoragePlanGB;
+        return Ok(storagePlanGB);
+
+    }
+
+
+        [HttpGet]
     public async Task<ActionResult<List<DisplayPatient>>> getPatients()
     {
         List<DisplayPatient> displayPatients = new List<DisplayPatient>();
@@ -256,6 +339,13 @@ public class TechnicianController : ControllerBase
             //get total size of files in MB (two decimals)
             double totalFilesSizesMB= Math.Round((double)totalFilesSizesBytes / (1024 * 1024), 1);
 
+            bool hasPdf = files.Any(file => file.Name.Trim().ToLower().EndsWith(".pdf"));
+            bool hasVideo = files.Any(file => file.Name.Trim().ToLower().EndsWith(".mp4"));
+            bool hasStl = files.Any(file => file.Name.Trim().ToLower().EndsWith(".stl"));
+
+            bool isForTutorial =  doctor.Email.ToLower().Trim() == "tom.scott@gmail.com" ? true : false;
+            
+
             displayPatients.Add( new DisplayPatient
             {
                 Id = patient.Id,
@@ -267,7 +357,11 @@ public class TechnicianController : ControllerBase
                 LastName = patient.LastName,
                 DateAdded = DateAdded,
                 Files = files,
-                TotalFilesSizesMB = totalFilesSizesMB
+                TotalFilesSizesMB = totalFilesSizesMB,
+                HasPdf = hasPdf,
+                HasVideo = hasVideo,
+                HasStl = hasStl,
+                IsForTutorial = isForTutorial
 
             });
 
@@ -294,8 +388,17 @@ public class TechnicianController : ControllerBase
             return BadRequest("Invalid Patient Id!");
         }
 
-        _dbContext.Patients.Remove(patient);
+ 
         
+
+     
+        if(patient.DoctorId ==(await _dbContext.Doctors.Where(d => d.Email.ToLower().Trim()== "tom.scott@gmail.com").FirstAsync()).Id)
+        {
+            
+            return Ok("Patient Deleted!");
+        }
+        _dbContext.Patients.Remove(patient);
+
 
         // delete files from azure
         string azureConnString = _config.GetConnectionString("AzureStorage")!;
@@ -345,6 +448,10 @@ public class TechnicianController : ControllerBase
         string technicianLastName = currentTechnicianUser.LastName;
         string doctorFirstName = doctorUser.FirstName;
         string doctorLastName = doctorUser.LastName;
+
+        bool hasPdf = patient.PatientFiles.Any(file => file.Name.Trim().ToLower().EndsWith(".pdf"));
+        bool hasVideo = patient.PatientFiles.Any(file => file.Name.Trim().ToLower().EndsWith(".mp4"));
+        bool hasStl = patient.PatientFiles.Any(file => file.Name.Trim().ToLower().EndsWith(".stl"));
      
         DateTime DateAdded = patient.DateAdded;
             List<DisplayPatientFile> files = patient.PatientFiles.Select(pf => new DisplayPatientFile
@@ -364,7 +471,10 @@ public class TechnicianController : ControllerBase
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateAdded = DateAdded,
-                Files = files
+                Files = files,
+                HasPdf = hasPdf,
+                HasVideo = hasVideo,
+                HasStl = hasStl
             };
 
      
@@ -412,35 +522,6 @@ public class TechnicianController : ControllerBase
 
 
 
-    [HttpGet]
-    public async Task<ActionResult<List<DisplayDoctor>>> getDoctors()
-    {
-        List<DisplayDoctor> displayDoctors = new List<DisplayDoctor>(); 
-
-        ApplicationUser currentTechnicianUser = ( await _userManager.GetUserAsync(User) )!;
-        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
-
-        List<Doctor> doctors = currentTechnician.Doctors.ToList();
-
-        foreach (Doctor doctor in doctors)
-        {
-            ApplicationUser doctorUser = _dbContext.Users.FirstOrDefault(u => u.Email == doctor.Email)!;
-            string doctorFirstName = doctorUser.FirstName;
-            string doctorLastName = doctorUser.LastName;
-            
-
-            displayDoctors.Add(new DisplayDoctor
-            {
-                FirstName = doctorFirstName,
-                LastName = doctorLastName,
-                Email = doctor.Email,
-                Id = doctor.Id
-            });
-        }
-
-        return Ok(displayDoctors);
-    }
-
 
 
 
@@ -479,11 +560,11 @@ public class TechnicianController : ControllerBase
         }
 
         // Check if a file with a specific name is here
-        if (!files.Any(file => file.FileName == "_STL_Config.json"))
-        {
-            FileErrors = "Missing file _STL_Config.json!";
-            return false;
-        }
+        //if (!files.Any(file => file.FileName == "_STL_Config.json"))
+        //{
+        //    FileErrors = "Missing file _STL_Config.json!";
+        //    return false;
+        //}
 
         if (files.Any(file => file.FileName.Length > 40))
         {
@@ -492,11 +573,11 @@ public class TechnicianController : ControllerBase
         }
 
 
-        if (!files.Any(file => file.FileName.ToLower().Contains(".stl")))
-        {
-            FileErrors = "Missing STL files";
-            return false;
-        }
+        //if (!files.Any(file => file.FileName.ToLower().Contains(".stl")))
+        //{
+        //    FileErrors = "Missing STL files";
+        //    return false;
+        //}
 
 
         if (files.Any(file => file.FileName == "_Video_Config.txt"))
@@ -518,8 +599,8 @@ public class TechnicianController : ControllerBase
         }
 
 
-        string stlRegex = @"^STL_[\w\-]+\.stl$";
-        string pdfRegex = @"^Report_\d+\.pdf$";
+        string stlRegex = @"^STL_\d{1,3}\.stl$";
+        string pdfRegex = @"^Report_\d{1,3}\.pdf$";
 
         string[] filesNames = files.Select(file => file.FileName).ToArray();
         string fileNamesErrors = "File(s) : ";

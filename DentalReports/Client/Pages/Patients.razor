@@ -94,23 +94,36 @@
 
                         if (nr == selectedRow)
                         {
-                           
+
                             if (role == RolesMegagen.Technician)
                             {
                                 <tr>
                                     <td colspan="4" style="border:none;">
                                         <div class="meg-bottom-row-container">
-                                            <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
-                                            <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
-                                            <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
+                                            @if (patient.HasPdf)
+                                            {
+                                                <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
+                                            }
+                                            @if (patient.HasStl)
+                                            {
+                                                <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
+                                            }
+                                            @if (patient.HasVideo)
+                                            {
+                                                <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
+                                            }
+                                          
+                                            @if (!patient.IsForTutorial)
+                                            {
+                                                <div style="display:flex; align-items:center;gap:0px;">
+                                                    <button @onclick="()=>ShowTrashModal(patient.Id)" class="trash-button"></button>
+                                                    <span @onclick="()=>ShowTrashModal(patient.Id)" style="color:white;font-size:8px;">@patient.TotalFilesSizesMB MB</span>
+                                                </div>
+                                            }
 
-                                            <div style="display:flex; align-items:center;gap:0px;">
-                                                <button @onclick="()=>ShowTrashModal(patient.Id)" class="trash-button"></button>
-                                                <span  @onclick="()=>ShowTrashModal(patient.Id)" style="color:white;font-size:8px;">@patient.TotalFilesSizesMB MB</span>
-                                            </div>
                                         
-
-                                            @* <button>DELETE</button>  *@
+                                        
+ 
                                         </div>
                                     </td>
 
@@ -121,11 +134,21 @@
                                 <tr>
                                     <td colspan="3" style="border:none;">
                                         <div class="meg-bottom-row-container">
-                                            <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
-                                            <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
-                                            <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
 
-                                            @* <button>DELETE</button>  *@
+                                            @if (patient.HasPdf)
+                                            {
+                                                <button @onclick="()=>ShowPdf(patient.Id)" class="pdf-button"></button>
+                                            }
+                                            @if(patient.HasStl)
+                                            {
+                                                <button @onclick="()=>ShowStl(patient.Id)" class="stl-button"></button>
+                                            }
+                                            @if(patient.HasVideo)
+                                            {
+                                                <button @onclick="()=>ShowVideo(patient.Id)" class="video-button"></button>
+                                            }
+ 
+ 
                                         </div>
                                     </td>
 
@@ -299,6 +322,9 @@
     private DateTime FromDateFilter = DateTime.MinValue;
     private DateTime ToDateFilter = DateTime.MaxValue;
 
+    private double totalPatientsSizeGB = 0;
+    private double sizeStoragePlanGB = 0;
+
 
     private string role = "";
     private async Task ReloadPage()
@@ -313,7 +339,24 @@
         await FetchFromLocalStorageAsync();
         await FetchFromApiAsync();
 
+        if (role != null && role == RolesMegagen.Technician)
+        {
+            await CalculateStorageDetailsOfTechnician();
+        }
 
+
+    }
+    public async Task CalculateStorageDetailsOfTechnician()
+    {
+
+
+        //fetch both details from API
+        totalPatientsSizeGB = (await _httpClient.GetFromJsonAsync<double>("api/technician/getTotalPatientsSizeGB")) ;
+        sizeStoragePlanGB = (await _httpClient.GetFromJsonAsync<double>("api/technician/getStoragePlanGB")) ;
+
+        //save both details to LocalStorage
+        await _localStorage.SetItemAsync<double>("totalPatientsSizeGB", totalPatientsSizeGB);
+        await _localStorage.SetItemAsync<double>("sizeStoragePlanGB", sizeStoragePlanGB);
 
 
 
@@ -355,6 +398,15 @@
 
         }
 
+        try
+        {
+            totalPatientsSizeGB = await _localStorage.GetItemAsync<double>("totalPatientsSizeGB") ;
+            sizeStoragePlanGB = await _localStorage.GetItemAsync<double>("sizeStoragePlanGB") ;
+        }
+        catch (Exception )
+        {
+
+        }
 
     }
     public async Task FetchFromApiAsync()
@@ -566,7 +618,7 @@
 
 
 
-    
+
 
     private async void OpenDateModal()
     {
@@ -588,7 +640,7 @@
         FromDateFilter = ((Dates)(result.Data!))!.FromDate;
         ToDateFilter = ((Dates)(result.Data!))!.ToDate;
 
-  
+
 
 
         DisplayDateFilter = (MarkupString)$"{MegagenDates.GetMegagenShortDate(FromDateFilter)} to <br /> {MegagenDates.GetMegagenShortDate(ToDateFilter)}";
@@ -597,14 +649,14 @@
     }
     private void ClearDoctorsFilter()
     {
-       
+
         FilteredDoctors = OriginalDoctors;
 
         DisplayDoctorTextFilters = $"Select Doctors";
         ApplyAllFilters();
     }
 
-private void ClearTechnicianFilter()
+    private void ClearTechnicianFilter()
     {
         FilteredTechnicians = OriginalTechnicians;
 
@@ -849,7 +901,7 @@ private void ClearTechnicianFilter()
             // }
             paginator_EntriesPerPage = inputValue;
             paginator_CurrentPage = 1;
-           
+
             await _localStorage.SetItemAsync<int>("paginator_EntriesPerPage", paginator_EntriesPerPage);
             PaginatorChanged();
         }
@@ -912,9 +964,9 @@ private void ClearTechnicianFilter()
     }
     public async void ShowTrashModal(int PatientId)
     {
-         
+
         ModalParameters parameters = new ModalParameters();
-        
+
         parameters.Add( "PatientId" , PatientId);
 
         ModalOptions options = new ModalOptions();
@@ -949,11 +1001,13 @@ private void ClearTechnicianFilter()
 
         ApplyAllFilters();
 
-         
- 
+        await CalculateStorageDetailsOfTechnician();
 
- 
-   
+
+
+
+
+
 
     }
 
@@ -961,13 +1015,21 @@ private void ClearTechnicianFilter()
     protected async Task NavigateToAddPatient()
     {
 
+        ModalParameters parameters = new ModalParameters();
+
+        parameters.Add("totalPatientsSizeGB", totalPatientsSizeGB);
+        parameters.Add("sizeStoragePlanGB", sizeStoragePlanGB);
+        // parameters.Add("OriginalTechnicians", OriginalTechnicians);
+
+
         ModalOptions options = new ModalOptions();
+
         options.DisableBackgroundCancel = true;
 
-        var modalWindows = _modal.Show<AddPatient>("Add new Patient", options);
+        var modalWindows = _modal.Show<AddPatient>("Add new Patient",parameters, options );
         var result = await modalWindows.Result;
 
-         if (role == RolesMegagen.Technician)
+        if (role == RolesMegagen.Technician)
         {
             OriginalPatients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
         }
@@ -980,12 +1042,15 @@ private void ClearTechnicianFilter()
             return;  
         }
 
+       
+
         FilteredPatients = OriginalPatients;
         DisplayPatients = OriginalPatients;
         FilteredDoctors = OriginalDoctors;
 
         ApplyAllFilters();
 
+        await CalculateStorageDetailsOfTechnician();
  
     }
 

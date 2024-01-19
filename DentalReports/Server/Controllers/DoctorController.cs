@@ -36,6 +36,8 @@ public class DoctorController : ControllerBase
         string doctorLastName = currentDoctorUser.LastName;
         List<Patient> patients = _dbContext.Patients.Where(p => p.DoctorId == currentDoctor.Id).ToList();
 
+       
+
         
         foreach (Patient patient in patients)
         {
@@ -53,6 +55,10 @@ public class DoctorController : ControllerBase
                 SizeBytes = pf.sizeBytes
             }).ToList();
 
+            bool hasPdf = files.Any(f => f.Name.Trim().ToLower().EndsWith(".pdf"));
+            bool hasVideo = files.Any(f => f.Name.Trim().ToLower().EndsWith(".mp4"));
+            bool hasStl = files.Any(f => f.Name.Trim().ToLower().EndsWith(".stl"));
+
             displayPatients.Add( new DisplayPatient
             {
                 Id = patient.Id,
@@ -63,7 +69,10 @@ public class DoctorController : ControllerBase
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateAdded = DateAdded,
-                Files = files
+                Files = files,
+                HasPdf = hasPdf,
+                HasVideo = hasVideo,
+                HasStl = hasStl
             });
             
         }
@@ -108,6 +117,10 @@ public class DoctorController : ControllerBase
             SizeBytes = pf.sizeBytes
         }).ToList();
 
+        bool hasPdf = files.Any(f => f.Name.Trim().ToLower().EndsWith(".pdf"));
+        bool hasVideo = files.Any(f => f.Name.Trim().ToLower().EndsWith(".mp4"));
+        bool hasStl = files.Any(f => f.Name.Trim().ToLower().EndsWith(".stl"));
+
         DisplayPatient displayPatient = new DisplayPatient
         {
             Id = patient.Id,
@@ -118,7 +131,10 @@ public class DoctorController : ControllerBase
             FirstName = patient.FirstName,
             LastName = patient.LastName,
             DateAdded = DateAdded,
-            Files = files
+            Files = files,
+            HasPdf = hasPdf,
+            HasVideo = hasVideo,
+            HasStl = hasStl
         };
 
         return Ok(displayPatient);

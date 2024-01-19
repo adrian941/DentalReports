@@ -168,11 +168,27 @@
 
     private void OpenPdf()
     {
-        navigationManager.NavigateTo($"pdf/{Id}");
+        if (displayPatient.HasPdf)
+        {
+            navigationManager.NavigateTo($"pdf/{Id}");
+        }
+        else
+        {
+            //TODO : show message
+        }
+
     }
     private void OpenVideo()
     {
-        navigationManager.NavigateTo($"video/{Id}");
+        if (displayPatient.HasVideo)
+        {
+            navigationManager.NavigateTo($"video/{Id}");
+        }
+        else
+        {
+            //TODO : show message
+        }
+
     }
     private void OpenStl()
     {

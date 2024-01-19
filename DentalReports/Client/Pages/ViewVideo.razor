@@ -21,7 +21,6 @@
             <button class="pdf-button " @onclick="OpenPdf"></button>
             <button class="stl-button " @onclick="OpenStl"></button>
             <button class="video-button" @onclick="OpenVideo"></button>
-        
         </div>
 
     </div>
@@ -99,11 +98,19 @@
     }
     private void OpenPdf()
     {
-        navigationManager.NavigateTo($"pdf/{Id}");
+        if (displayPatient.HasPdf)
+        {
+            navigationManager.NavigateTo($"pdf/{Id}");
+        }
+
     }
     private void OpenStl()
     {
-        navigationManager.NavigateTo($"3d-viewer/{Id}");
+        if (displayPatient.HasStl)
+        {
+            navigationManager.NavigateTo($"3d-viewer/{Id}");
+        }
+     
     }
     private void OpenVideo()
     {

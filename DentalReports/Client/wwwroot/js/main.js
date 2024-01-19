@@ -15,7 +15,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			await initMaterials();
 			await initScene();
 			await loadStls();
-			await centerSTLtoScreen();
+			await centerSTLtoScreen();	
 			await loadGuiElements();
   
 			animateScene();
@@ -179,7 +179,7 @@ window.initialize3DViewer = function (fileSourcesArray) {
 			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 			renderer.setClearColor(0x2e2e2e)
 			
-			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 6000);
+			window.camera = new THREE.PerspectiveCamera(5, sizes.width / sizes.height, 40, 12000);
 			//camera.rotation.order = 'XYZ';
 			 
 			camera.position.set(1800, 2, 20);

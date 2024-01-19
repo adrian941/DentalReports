@@ -16,6 +16,14 @@ public class DisplayPatient
     public string DoctorLastName { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
 
+    public bool HasPdf { get; set; } = true;
+
+    public bool HasVideo { get; set; } = true;
+
+    public bool HasStl { get; set; } = true;
+
+    public bool IsForTutorial { get; set; } = false;
+
     public string LastName { get; set; } = string.Empty;
 
     public DateTime DateAdded { get; set; } = DateTime.MinValue;
