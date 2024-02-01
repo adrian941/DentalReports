@@ -102,6 +102,13 @@
         {
             navigationManager.NavigateTo($"pdf/{Id}");
         }
+        else
+        {
+            //Alert Message with jsinterop
+
+            _jsRuntime.InvokeVoidAsync("alert", "No PDF File Found");
+
+        }
 
     }
     private void OpenStl()
@@ -110,7 +117,11 @@
         {
             navigationManager.NavigateTo($"3d-viewer/{Id}");
         }
-     
+        else
+        {
+            _jsRuntime.InvokeVoidAsync("alert", "No 3D Files Found");
+        }
+
     }
     private void OpenVideo()
     {

@@ -122,17 +122,26 @@
                         var lastName = jsonObject.GetProperty("LastName").GetString();
                         var dateAdded = jsonObject.GetProperty("DateAdded").GetString();
 
-                        string doctorEmail = jsonObject.GetProperty("DoctorEmail").GetString();
-                        var selectedDoctorId = displayAddPatient.Doctors.Where(x => x.Email == doctorEmail).FirstOrDefault()!.Id;
+                        var doctorEmail = jsonObject.GetProperty("DoctorEmail").GetString();
+
+                        try
+                        {
+                            var selectedDoctorId = displayAddPatient.Doctors.Where(x => x.Email == doctorEmail).FirstOrDefault()!.Id;
+
+                            jsonObject.GetProperty("DoctorId").GetInt32();
+
+                            displayAddPatient.SelectedDoctorId = selectedDoctorId;
+                        }
+                        catch (Exception) { }
 
 
-                        jsonObject.GetProperty("DoctorId").GetInt32();
-
-                        displayAddPatient.SelectedDoctorId = selectedDoctorId;
-                        displayAddPatient.FirstName = firstName;
-                        displayAddPatient.LastName = lastName;
+                        displayAddPatient.FirstName = firstName!;
+                        displayAddPatient.LastName = lastName!;
                         string[] times = dateAdded.Split('-');
                         displayAddPatient.DateAdded = new DateTime(int.Parse(times[0]), int.Parse(times[1]), int.Parse(times[2]));
+
+
+
 
                         StateHasChanged();
 

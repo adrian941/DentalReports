@@ -38,7 +38,8 @@ public class TechnicianController : ControllerBase
     {
         ApplicationUser? currentUser = await _userManager.GetUserAsync(User);
    
-        Technician? currentTechnician = _dbContext.Technicians
+        Technician? currentTechnician = 
+            _dbContext.Technicians.Include(t => t.Doctors)
             .Where(t => t.Email.ToUpper().Trim() == currentUser!.Email!.ToUpper().Trim()).FirstOrDefault();
 
         List<Doctor> doctors = currentTechnician!.Doctors.ToList();
@@ -66,7 +67,8 @@ public class TechnicianController : ControllerBase
         string Email = displayDoctor.Email!;
         ApplicationUser? requestedUser = _userManager.FindByEmailAsync(Email).Result;
         ApplicationUser? currentLoggedUser = await _userManager.GetUserAsync(User);
-        Technician? currentTechnician = _dbContext.Technicians
+        Technician? currentTechnician = 
+            _dbContext.Technicians.Include(t => t.Doctors)
                 .Where(t => t.Email == currentLoggedUser!.Email)
                 .FirstOrDefault();
 
@@ -140,16 +142,7 @@ public class TechnicianController : ControllerBase
         _dbContext.Patients.Add(newPatient);
         await _dbContext.SaveChangesAsync();
 
-
-
-
-
-
-
-
-
-
-
+ 
 
         return Ok($"Doctor {requestedUser.FirstName} {requestedUser.LastName} added to your Doctor list!");
 
@@ -164,18 +157,30 @@ public class TechnicianController : ControllerBase
             return BadRequest("Controller: " + FileErrors);
         }
        
+        
 
         DisplayAddPatient displayAddPatient = JsonSerializer.Deserialize<DisplayAddPatient>(patientJson)!;
            
         ApplicationUser currentUser = ( await _userManager.GetUserAsync(User) )!;
 
-        Technician? currentTechnician = _dbContext.Technicians.Where(t => t.Email.ToUpper().Trim() == currentUser.Email!.ToUpper().Trim()).FirstOrDefault();
-        
+        Technician? currentTechnician = 
+            _dbContext.Technicians.Include(t => t.Patients)
+            .Where(t => t.Email.ToUpper().Trim() == currentUser.Email!.ToUpper().Trim())
+            .FirstOrDefault();
+
+        long totalSizeBytes = currentTechnician!.Patients.SelectMany(p => p.PatientFiles).Sum(pf => pf.sizeBytes);
+        double totalSizeGB = Math.Round((double)totalSizeBytes / (1024 * 1024 * 1024), 2);
+
+        if (totalSizeGB >= currentTechnician.sizeStoragePlanGB )
+        {
+            return BadRequest($"You have reached the maximum storage plan of {currentTechnician.StoragePlan} GB!");
+        }
    
 
         
         int doctorId = displayAddPatient.SelectedDoctorId;
-        Doctor doctor = (await _dbContext.Doctors.Where(d => (d.Id == doctorId)).FirstOrDefaultAsync() )!;
+        Doctor doctor = (await _dbContext.Doctors.Include(d => d.Technicians).
+            Where(d => (d.Id == doctorId)).FirstOrDefaultAsync() )!;
         if (doctor == null)
         {
             return BadRequest($"Invalid Doctor !!");
@@ -193,8 +198,9 @@ public class TechnicianController : ControllerBase
 
 
 
-        bool patientExists = await _dbContext.Patients.AnyAsync(p => (p.TechnicianId == currentTechnician.Id && p.DoctorId == displayAddPatient.SelectedDoctorId && p.DateAdded == displayAddPatient.DateAdded && p.FirstName == displayAddPatient.FirstName
-                                  && p.LastName == displayAddPatient.LastName));
+        bool patientExists = await _dbContext.Patients
+            .AnyAsync(p => (p.TechnicianId == currentTechnician.Id && p.DoctorId == displayAddPatient.SelectedDoctorId && p.DateAdded == displayAddPatient.DateAdded 
+            && p.FirstName == displayAddPatient.FirstName  && p.LastName == displayAddPatient.LastName));
         if (patientExists)
         {
             return BadRequest($"Patient {displayAddPatient.FirstName} {displayAddPatient.LastName} already exists at this Date!");
@@ -225,14 +231,8 @@ public class TechnicianController : ControllerBase
             newFileNames.Add(new SendFileModel { FileName = fileName, sizeBytes = sizeBytes });
         }
 
-
             
-            
-            
-            
-            
-            
-            //files.Select(file => sufixFile + file.FileName).ToList();
+        //files.Select(file => sufixFile + file.FileName).ToList();
 
         Patient patient = new Patient
         {
@@ -283,7 +283,8 @@ public class TechnicianController : ControllerBase
     public async Task<ActionResult<double>> getTotalPatientsSizeGB()
     {
         ApplicationUser currentUser = ( await _userManager.GetUserAsync(User) )!;
-        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentUser.Email)!;
+        Technician currentTechnician = _dbContext.Technicians.Include(t => t.Patients).ThenInclude(p => p.PatientFiles) 
+            .FirstOrDefault(t => t.Email == currentUser.Email)!;
 
         long totalSizeBytes = currentTechnician.Patients.SelectMany(p => p.PatientFiles).Sum(pf => pf.sizeBytes);
         double totalSizeGB = Math.Round((double)totalSizeBytes / (1024 * 1024 * 1024), 2);
@@ -302,7 +303,7 @@ public class TechnicianController : ControllerBase
     }
 
 
-        [HttpGet]
+    [HttpGet]
     public async Task<ActionResult<List<DisplayPatient>>> getPatients()
     {
         List<DisplayPatient> displayPatients = new List<DisplayPatient>();
@@ -317,7 +318,8 @@ public class TechnicianController : ControllerBase
         
         string technicianFirstName = currentTechnicianUser.FirstName;
         string technicianLastName = currentTechnicianUser.LastName;
-        List<Patient> patients = _dbContext.Patients.Where(p => p.TechnicianId == currentTechnician.Id).ToList();
+        List<Patient> patients = _dbContext.Patients.Include(p => p.PatientFiles) 
+            .Where(p => p.TechnicianId == currentTechnician.Id).ToList();
 
         foreach (Patient patient in patients)
         {
@@ -381,7 +383,8 @@ public class TechnicianController : ControllerBase
             return BadRequest("Invalid Patient Id!");
         }
         ApplicationUser currentTechnicianUser = (await _userManager.GetUserAsync(User))!;
-        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
+        Technician currentTechnician = _dbContext.Technicians.Include(t => t.Patients)
+            .FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
 
         if (!currentTechnician.Patients.Contains(patient))
         {
@@ -425,14 +428,16 @@ public class TechnicianController : ControllerBase
     public async Task<ActionResult<DisplayPatient>> getPatient(int PatientId)
     {
 
-        Patient? patient = _dbContext.Patients.Where(p => p.Id == PatientId).FirstOrDefault() ;
+        Patient? patient = _dbContext.Patients.Include(p => p.PatientFiles)
+            .Where(p => p.Id == PatientId).FirstOrDefault() ;
         if (patient == null)
         {
             return BadRequest("Invalid Patient Id!");
         }
  
         ApplicationUser currentTechnicianUser = (await _userManager.GetUserAsync(User))!;
-        Technician currentTechnician = _dbContext.Technicians.FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
+        Technician currentTechnician = _dbContext.Technicians.Include(t => t.Patients)
+            .FirstOrDefault(t => t.Email == currentTechnicianUser.Email)!;
 
         if(!currentTechnician.Patients.Contains(patient))
         {
@@ -511,33 +516,10 @@ public class TechnicianController : ControllerBase
 
 
 
+     
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        private bool areFilesValid(List<IFormFile> files)
+    private bool areFilesValid(List<IFormFile> files)
     {
 
         int maxAllowedFiles = 20;

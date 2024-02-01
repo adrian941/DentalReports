@@ -430,16 +430,29 @@
         //localStorage
         if (role == RolesMegagen.Technician)
         {
-            patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
-            doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/getDoctors") ?? new List<DisplayDoctor>();
-            technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/technician/getCurrentTechnician") ?? new List<DisplayTechnician>();
+            try
+            {
+                patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/technician/getPatients") ?? new List<DisplayPatient>();
+                doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/technician/getDoctors") ?? new List<DisplayDoctor>();
+                technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/technician/getCurrentTechnician") ?? new List<DisplayTechnician>();
+            }
+            catch (Exception ex)
+            {
+                
+                _navigationManager.NavigateToLogout("/authentication/logout");
+            }
 
         }
         else if (role == RolesMegagen.Doctor)
         {
-            patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
-            doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/doctor/getCurrentDoctor") ?? new List<DisplayDoctor>();
-            technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/doctor/getTechnicians") ?? new List<DisplayTechnician>();
+            try{
+                patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/doctor/getPatients") ?? new List<DisplayPatient>();
+                doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/doctor/getCurrentDoctor") ?? new List<DisplayDoctor>();
+                technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/doctor/getTechnicians") ?? new List<DisplayTechnician>();
+            }catch(Exception ex)
+            {
+                _navigationManager.NavigateToLogout("/authentication/logout");
+            }
         }
         else
         {

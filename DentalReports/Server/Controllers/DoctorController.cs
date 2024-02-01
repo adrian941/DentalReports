@@ -34,11 +34,16 @@ public class DoctorController : ControllerBase
         Doctor currentDoctor = _dbContext.Doctors.FirstOrDefault(d => d.Email == currentDoctorUser.Email)!;
         string doctorFirstName = currentDoctorUser.FirstName;
         string doctorLastName = currentDoctorUser.LastName;
-        List<Patient> patients = _dbContext.Patients.Where(p => p.DoctorId == currentDoctor.Id).ToList();
+ 
+        List<Patient> patients = 
+            _dbContext.Patients
+            .Include(p => p.PatientFiles)
+            .Where(p => p.DoctorId == currentDoctor.Id).ToList();
 
-       
 
-        
+
+
+
         foreach (Patient patient in patients)
         {
             Technician technician = _dbContext.Technicians.FirstOrDefault(t => t.Id == patient.TechnicianId)!;
@@ -84,7 +89,9 @@ public class DoctorController : ControllerBase
     [Route("/api/doctor/getPatient/{PatientId}")]
     public async Task<ActionResult<List<DisplayPatient>>> getPatient(int PatientId)
     {
-        Patient? patient = _dbContext.Patients.Where(p => p.Id == PatientId).FirstOrDefault();
+        Patient? patient = 
+            _dbContext.Patients.Include(p => p.PatientFiles)
+            .Where(p => p.Id == PatientId).FirstOrDefault();
         if (patient == null)
         {
             return BadRequest("Invalid Patient Id!");
@@ -172,10 +179,26 @@ public class DoctorController : ControllerBase
         {
             return BadRequest("User does not exist");
         }
+        Doctor? currentDoctor = null;
+       
+        try
+        {
+            
+            currentDoctor = _dbContext.Doctors
+                .Include(d => d.Technicians)
+                .Where(d => d.Email.ToLower().Trim() == currentUser.Email!.ToLower().Trim())
+                .FirstOrDefault();
 
-        Doctor? currentDoctor = _dbContext.Doctors.Include(d=>d.Technicians)
-            .Where(d => d.Email.ToLower().Trim() == currentUser.Email!.ToLower().Trim())
-            .FirstOrDefault();
+           
+       
+            
+
+             
+        }
+         catch (Exception ex)
+        {
+            
+        }
 
         List<Technician> technicians = currentDoctor!.Technicians.ToList();
 

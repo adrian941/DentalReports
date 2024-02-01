@@ -36,7 +36,7 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
                         .IsUnique(false);
 
         //Doctor and Technician
-        builder.Entity<Doctor>().Navigation(d => d.Patients).AutoInclude();
+        //builder.Entity<Doctor>().Navigation(d => d.Patients).AutoInclude();
         builder.Entity<Doctor>()
          .HasMany(d => d.Technicians)
          .WithMany(t => t.Doctors)
@@ -55,7 +55,7 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
          .HasIndex(t => t.Email)
          .IsUnique(true);
 
-        builder.Entity<Technician>().Navigation(t => t.Doctors).AutoInclude();
+        //builder.Entity<Technician>().Navigation(t => t.Doctors).AutoInclude();
 
 
         //Patient
@@ -72,7 +72,7 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
             .HasIndex(p => new { p.DateAdded, p.FirstName, p.LastName, p.DoctorId, p.TechnicianId })
             .IsUnique(true);
 
-        builder.Entity<Patient>().Navigation(p => p.PatientFiles).AutoInclude();
+        //builder.Entity<Patient>().Navigation(p => p.PatientFiles).AutoInclude();
 
 
 
