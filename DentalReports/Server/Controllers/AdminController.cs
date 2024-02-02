@@ -1,6 +1,7 @@
 ﻿using DentalReports.Server.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DentalReports.Server.Controllers;
 
@@ -22,20 +23,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [HttpGet]
-   
-    public async Task<ActionResult<List<DisplayTechnician>>> GetTechnicians()
-    {
-        var technicians = await _userManager.GetUsersInRoleAsync(RolesMegagen.Technician);
-        var displayTechnicians = technicians.Select(t => new DisplayTechnician
-        {
-            FirstName = t.FirstName,
-            LastName = t.LastName ,
-            Email = t.UserName!
-        }).ToList();
-
-        return Ok(displayTechnicians);
-    }
+  
 
     [HttpPost]
      public async Task<ActionResult> AddTechnician(DisplayTechnician displayTechnician)
@@ -138,5 +126,162 @@ public class AdminController : ControllerBase
     }
 
 
+    [HttpGet]
+    [Route("/api/admin/getPatient/{PatientId}")]
+    public async Task<ActionResult<DisplayPatient>> getPatient(int PatientId)
+    {
+        Patient? patient =
+            _dbContext.Patients.Include(p => p.PatientFiles)
+            .Where(p => p.Id == PatientId).FirstOrDefault();
+        if (patient == null)
+        {
+           return BadRequest($"Invalid Patient Id");
+        }
+
+        Technician technician = _dbContext.Technicians.FirstOrDefault(t => t.Id == patient.TechnicianId)!;
+        Doctor doctor = _dbContext.Doctors.FirstOrDefault(d => d.Id == patient.DoctorId)!;
+        ApplicationUser technicianUser = _userManager.FindByEmailAsync(technician.Email).Result!;
+        ApplicationUser doctorUser = _userManager.FindByEmailAsync(doctor.Email).Result!;
+
+        List<DisplayPatientFile> files = patient.PatientFiles.Select(pf => new DisplayPatientFile
+        {
+            Id = pf.Id,
+            Name = pf.Name,
+            SizeBytes = pf.sizeBytes
+        }).ToList();
+
+        bool hasPdf = files.Any(file => file.Name.Trim().ToLower().EndsWith(".pdf"));
+        bool hasVideo = files.Any(file => file.Name.Trim().ToLower().EndsWith(".mp4"));
+        bool hasStl = files.Any(file => file.Name.Trim().ToLower().EndsWith(".stl"));
+
+        DisplayPatient displayPatient = new DisplayPatient
+        {
+            Id = patient.Id,
+            TechnicianFirstName = technicianUser!.FirstName,
+            TechnicianLastName = technicianUser!.LastName,
+            TechnicianEmail = technicianUser!.Email!,
+            DoctorFirstName = doctorUser!.FirstName,
+            DoctorLastName = doctorUser!.LastName,
+            DoctorEmail = doctorUser!.Email!,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            DateAdded = patient.DateAdded,
+            Files = files,
+            HasPdf = hasPdf,
+            HasVideo = hasVideo,
+            HasStl = hasStl
+        };
+
+        return Ok(displayPatient);
+
+
+
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayPatient>>> getPatients()
+    {
+        List<DisplayPatient> displayPatients = new List<DisplayPatient>();
+
+        List<Patient> patients = await _dbContext.Patients.Include(p => p.PatientFiles).ToListAsync();
+        
+        foreach(Patient patient in patients)
+        {
+            List<PatientFile> files = patient.PatientFiles.ToList();
+
+            bool hasPdf = files.Any(file => file.Name.Trim().ToLower().EndsWith(".pdf"));
+            bool hasVideo = files.Any(file => file.Name.Trim().ToLower().EndsWith(".mp4"));
+            bool hasStl = files.Any(file => file.Name.Trim().ToLower().EndsWith(".stl"));
+
+            Technician  technician = _dbContext.Technicians.FirstOrDefault(t => t.Id == patient.TechnicianId)!;
+            Doctor doctor = _dbContext.Doctors.FirstOrDefault(d => d.Id == patient.DoctorId)!;
+            ApplicationUser technicianUser = _userManager.FindByEmailAsync(technician.Email).Result!;
+            ApplicationUser doctorUser = _userManager.FindByEmailAsync(doctor.Email).Result!;
+
+            DisplayPatient displayPatient = new DisplayPatient
+            {
+                Id = patient.Id,
+                TechnicianFirstName = technicianUser!.FirstName,
+                TechnicianLastName = technicianUser!.LastName,
+                TechnicianEmail = technicianUser!.Email!,
+                DoctorFirstName = doctorUser!.FirstName,
+                DoctorLastName = doctorUser!.LastName,
+                DoctorEmail = doctorUser!.Email!,
+                FirstName = patient.FirstName,
+                LastName = patient.LastName,
+                DateAdded = patient.DateAdded,
+                Files = patient.PatientFiles.Select(f => new DisplayPatientFile
+                {
+                    Name = f.Name,
+                    SizeBytes = f.sizeBytes
+                }).ToList(),
+                HasPdf = hasPdf,
+                HasVideo = hasVideo,
+                HasStl = hasStl
+            };
+
+
+            displayPatients.Add(displayPatient);
+
+        }
+
+
+
+
+
+
+
+
+        return Ok(displayPatients);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayDoctor>>> getDoctors()
+    {
+        List<Doctor> doctors = await _dbContext.Doctors.Include(d => d.Patients).ThenInclude(p => p.PatientFiles).ToListAsync();
+
+
+        var displayDoctors = doctors.Select(d => new DisplayDoctor
+        {
+            FirstName = _userManager.FindByEmailAsync(d.Email).Result!.FirstName,
+            LastName = _userManager.FindByEmailAsync(d.Email).Result!.LastName,
+            Email = d.Email!,
+            Id = d.Id
+        }).ToList();
+
+        return Ok(displayDoctors);
+    }
+
+
+    //[HttpGet]
+
+    //public async Task<ActionResult<List<DisplayTechnician>>> GetTechnicians()
+    //{
+    //    var technicians = await _userManager.GetUsersInRoleAsync(RolesMegagen.Technician);
+    //    var displayTechnicians = technicians.Select(t => new DisplayTechnician
+    //    {
+    //        FirstName = t.FirstName,
+    //        LastName = t.LastName,
+    //        Email = t.UserName!
+    //    }).ToList();
+
+    //    return Ok(displayTechnicians);
+    //}
+    [HttpGet]
+    public async Task<ActionResult<List<DisplayTechnician>>> getTechnicians()
+    {
+        List<Technician> technicians = await _dbContext.Technicians.ToListAsync();
+        var displayTechnicians = technicians.Select(t => new DisplayTechnician
+        {
+
+            FirstName = _userManager.FindByEmailAsync(t.Email).Result!.FirstName,
+            LastName = _userManager.FindByEmailAsync(t.Email).Result!.LastName,
+            Email = t.Email!,
+            Id = t.Id
+        }).ToList();
+
+        return Ok(displayTechnicians);
+
+    }
 
 }

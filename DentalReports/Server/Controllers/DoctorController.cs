@@ -69,8 +69,10 @@ public class DoctorController : ControllerBase
                 Id = patient.Id,
                 TechnicianFirstName = technicianFirstName,
                 TechnicianLastName = technicianLastName,
+                TechnicianEmail = technicianUser.Email!,
                 DoctorFirstName = doctorFirstName,
                 DoctorLastName = doctorLastName,
+                DoctorEmail = currentDoctorUser.Email!,
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateAdded = DateAdded,
@@ -133,8 +135,10 @@ public class DoctorController : ControllerBase
             Id = patient.Id,
             TechnicianFirstName = technicianFirstName,
             TechnicianLastName = technicianLastName,
+            TechnicianEmail = technicianUser.Email!,
             DoctorFirstName = doctorFirstName,
             DoctorLastName = doctorLastName,
+            DoctorEmail = currentDoctorUser.Email!,
             FirstName = patient.FirstName,
             LastName = patient.LastName,
             DateAdded = DateAdded,
@@ -172,7 +176,7 @@ public class DoctorController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<DisplayDoctor>>> getTechnicians()
+    public async Task<ActionResult<List<DisplayTechnician>>> getTechnicians()
     {
         ApplicationUser? currentUser = await _userManager.GetUserAsync(User);
         if (currentUser == null)

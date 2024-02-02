@@ -22,7 +22,20 @@
                 <thead>
                     <tr>
                    
-                        @if (role == RolesMegagen.Technician)
+                         @if (role == RolesMegagen.Doctor || role == RolesMegagen.Admin)
+                        {
+                            @* TODO Header for TECHNICIANS  *@
+                            <th>
+                                <div class="modal-filter" @onclick="OpenTechniciansModal">
+                                    <span class="span-doctors-modal">@DisplayTechnicianTextFilters</span>
+                                    <button @onclick="ClearTechnicianFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
+                                </div>
+                                <div class="meg-sub-filter-space"></div>
+                                <span @onclick="SortByTechnician" class="meg-table-header" >Technician  <b>↑↓</b></span>
+                            </th>
+                        }
+
+                        @if (role == RolesMegagen.Technician || role==RolesMegagen.Admin)
                         {
                             @* Header for DOCTORS *@
                             <th>
@@ -35,18 +48,7 @@
                             </th>
                         }
 
-                        @if (role == RolesMegagen.Doctor)
-                        {
-                            @* TODO Header for TECHNICIANS  *@
-                            <th>
-                                <div class="modal-filter" @onclick="OpenTechniciansModal">
-                                    <span class="span-doctors-modal">@DisplayTechnicianTextFilters</span>
-                                    <button @onclick="ClearTechnicianFilter" @onclick:stopPropagation="true" class="clear-filter-btn"></button>
-                                </div>
-                                <div class="meg-sub-filter-space"></div>
-                                <span @onclick="SortByTechnician" class="meg-table-header" >Technician  <b>↑↓</b></span>
-                            </th>
-                        }
+                      
                        
 
                         @* Header for PATIENTS *@
@@ -79,15 +81,17 @@
 
                         <tr @onclick="() => RowClicked(nr)" class="@(nr == selectedRow ? "meg-selected-row" : "meg-not-selected-row")">
 
-                            @if (role == RolesMegagen.Technician)
-                            {
-                                <td>@patient.DoctorFirstName @patient.DoctorLastName.ToUpper()</td>
-                            }
-                            else if (role == RolesMegagen.Doctor)
+
+                            @if (role == RolesMegagen.Doctor || role == RolesMegagen.Admin)
                             {
                                 <td>@patient.TechnicianFirstName @patient.TechnicianLastName.ToUpper()</td>
                             }
 
+                            @if (role == RolesMegagen.Technician || role == RolesMegagen.Admin)
+                            {
+                                <td>@patient.DoctorFirstName @patient.DoctorLastName.ToUpper()</td>
+                            }
+                       
                             <td>@patient.FirstName @patient.LastName.ToUpper()</td>
                             <td> @((MarkupString)MegagenDates.GetMegagenLongDate(patient.DateAdded))</td>
                         </tr>
@@ -95,7 +99,7 @@
                         if (nr == selectedRow)
                         {
 
-                            if (role == RolesMegagen.Technician)
+                            if (role == RolesMegagen.Technician )
                             {
                                 <tr>
                                     <td colspan="4" style="border:none;">
@@ -129,10 +133,10 @@
 
                                 </tr>
                             }
-                            else if (role == RolesMegagen.Doctor)
+                            else if (role == RolesMegagen.Doctor || role == RolesMegagen.Admin)
                             {
                                 <tr>
-                                    <td colspan="3" style="border:none;">
+                                    <td colspan="4" style="border:none;">
                                         <div class="meg-bottom-row-container">
 
                                             @if (patient.HasPdf)
@@ -454,9 +458,19 @@
                 _navigationManager.NavigateToLogout("/authentication/logout");
             }
         }
-        else
+        else if(role == RolesMegagen.Admin)
         {
-            return; // Let just the default HTML messages to be displayed
+            try
+            {
+                patients = await _httpClient.GetFromJsonAsync<List<DisplayPatient>>("api/admin/getPatients") ?? new List<DisplayPatient>();
+                doctors = await _httpClient.GetFromJsonAsync<List<DisplayDoctor>>("api/admin/getDoctors") ?? new List<DisplayDoctor>();
+                technicians = await _httpClient.GetFromJsonAsync<List<DisplayTechnician>>("api/admin/getTechnicians") ?? new List<DisplayTechnician>();
+            }
+            catch (Exception ex)
+            {
+
+                _navigationManager.NavigateToLogout("/authentication/logout");
+            }
         }
 
 
@@ -805,15 +819,25 @@
 
             &&
             (
-                FilteredDoctors.Any(doc => doc.FirstName!.Trim().ToLower() == pat.DoctorFirstName.ToLower().Trim() &&   // If we Filtered by Doctors
-                                            doc.LastName!.Trim().ToLower() == pat.DoctorLastName.ToLower().Trim()
+                // FilteredDoctors.Any(doc => doc.FirstName!.Trim().ToLower() == pat.DoctorFirstName.ToLower().Trim() &&   // If we Filtered by Doctors
+                //                             doc.LastName!.Trim().ToLower() == pat.DoctorLastName.ToLower().Trim()
+
+                FilteredDoctors.Any(doc => doc.Email!.ToLower().Trim() == pat.DoctorEmail.ToLower().Trim() // If we Filtered by Doctors
              )
              &&
              (
 
 
-                FilteredTechnicians.Any(tech => tech.FirstName!.Trim().ToLower() == pat.TechnicianFirstName.ToLower().Trim() &&   // If we Filtered by Technicians
-                                            tech.LastName!.Trim().ToLower() == pat.TechnicianLastName.ToLower().Trim()
+                // FilteredTechnicians.Any(tech => tech.FirstName!.Trim().ToLower() == pat.TechnicianFirstName.ToLower().Trim() &&   // If we Filtered by Technicians
+                //                             tech.LastName!.Trim().ToLower() == pat.TechnicianLastName.ToLower().Trim()
+
+
+                FilteredTechnicians.Any(tech => tech.Email!.ToLower().Trim() == pat.TechnicianEmail.ToLower().Trim() // If we Filtered by Technicians
+
+
+
+
+
              )
              )
 

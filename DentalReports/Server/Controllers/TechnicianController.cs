@@ -139,7 +139,14 @@ public class TechnicianController : ControllerBase
             PatientFiles = patientfiles
         };
 
-        _dbContext.Patients.Add(newPatient);
+        try
+        {
+            _dbContext.Patients.Add(newPatient);
+        }
+         catch (Exception)
+        {
+            //Patient already exists , so go on
+        }
         await _dbContext.SaveChangesAsync();
 
  
@@ -353,8 +360,10 @@ public class TechnicianController : ControllerBase
                 Id = patient.Id,
                 TechnicianFirstName = technicianFirstName,
                 TechnicianLastName = technicianLastName,
+                TechnicianEmail = currentTechnicianUser.Email!,
                 DoctorFirstName = doctorFirstName,
                 DoctorLastName = doctorLastName,
+                DoctorEmail = doctor.Email!,
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateAdded = DateAdded,
@@ -471,8 +480,10 @@ public class TechnicianController : ControllerBase
                 Id = patient.Id,
                 TechnicianFirstName = technicianFirstName,
                 TechnicianLastName = technicianLastName,
+                TechnicianEmail = currentTechnicianUser.Email!,
                 DoctorFirstName = doctorFirstName,
                 DoctorLastName = doctorLastName,
+                DoctorEmail = doctor.Email!,
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateAdded = DateAdded,

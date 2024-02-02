@@ -107,7 +107,7 @@
                 return;
             }
 
-        if (role == RolesMegagen.Technician)
+            if (role == RolesMegagen.Technician)
             {
                 try
                 {
@@ -135,6 +135,24 @@
                 try
                 {
                     displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/doctor/getPatient/{Id}"))!;
+                }
+                catch (Exception)
+                {
+                    navigationManager.NavigateTo($"/NotAuthorized", true);
+                    return;
+                }
+                if (displayPatient == null)
+                {
+                    navigationManager.NavigateTo($"/NotAuthorized", true);
+                    return;
+                }
+            }
+
+            if(role == RolesMegagen.Admin)
+            {
+                try
+                {
+                    displayPatient = (await _httpClient.GetFromJsonAsync<DisplayPatient>($"api/admin/getPatient/{Id}"))!;
                 }
                 catch (Exception)
                 {

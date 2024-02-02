@@ -12,6 +12,11 @@ public class DisplayPatient
 
     public string TechnicianFirstName { get; set; } = string.Empty;
     public string TechnicianLastName { get; set; } = string.Empty;
+
+    public string TechnicianEmail { get; set; } = string.Empty;
+
+    public string DoctorEmail { get; set; } = string.Empty;
+
     public string DoctorFirstName { get; set; } = string.Empty;
     public string DoctorLastName { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;

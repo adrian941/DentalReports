@@ -2,11 +2,13 @@
 <EditForm Model="OriginalDoctors" OnValidSubmit="HandleValidSubmit">
     <div class="form-group">
 
-        @foreach (var doctorViewModel in DisplayDoctors)
+        @foreach (var doctorViewModel in DisplayDoctors.OrderBy(d => d.Doctor.FirstName).ThenBy(d => d.Doctor.LastName))
         {
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="@($"checkbox_{doctorViewModel.Doctor.Id}")" @bind="doctorViewModel.IsChecked" />
-                <label class="form-check-label" for="@($"checkbox_{doctorViewModel.Doctor.Id}")">@doctorViewModel.Doctor.FirstName @doctorViewModel.Doctor.LastName</label>
+                <label class="form-check-label" for="@($"checkbox_{doctorViewModel.Doctor.Id}")">
+                    @doctorViewModel.Doctor.FirstName @doctorViewModel.Doctor.LastName   <span style="font-size:0.8em"> @($"({doctorViewModel.Doctor.Email})") </span>
+                </label>
             </div>
         }
 

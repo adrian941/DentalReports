@@ -41,6 +41,9 @@
 
         <CompletingLogOut>
             <h3>Completting log out</h3>
+            @* Go to Login *@
+            @InvokeAsync(() => navigationManager.NavigateTo("/Identity/Account/Login", true))
+
         </CompletingLogOut>  
         
 

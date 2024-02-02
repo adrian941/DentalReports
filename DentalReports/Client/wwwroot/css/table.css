@@ -52,11 +52,16 @@ th:first-child, td:first-child {
  
     }
 
- 
+
     th:nth-child(3), td:nth-child(3) {
-        width: 94px;
- 
+        width: calc(50vw - 47px);
+        min-width: 95px;
     }
+    th:last-child, td:last-child {
+         width: 94px;
+    }
+
+
 
 
 
