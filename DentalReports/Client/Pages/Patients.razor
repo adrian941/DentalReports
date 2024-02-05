@@ -367,8 +367,7 @@
     }
     public async Task FetchFromLocalStorageAsync()
     {
-
-
+         
         try
         {
             role = await _localStorage.GetItemAsync<string>("role") ?? "";
