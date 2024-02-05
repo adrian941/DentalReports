@@ -100,6 +100,12 @@
             console.log("seek to::: " + totalSeconds)
             var video = document.getElementById('myVideo');
             video.currentTime = totalSeconds;
+            if (totalSeconds >= 2 && video.currentTime <= 2 ) {
+                console.log("Bad seek");
+                video.load();
+                video.currentTime = totalSeconds;
+                console.log("seek AGAIN to::: " + totalSeconds)
+            }
             video.play();
         }
     </script>
