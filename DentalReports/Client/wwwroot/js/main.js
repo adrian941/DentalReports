@@ -351,10 +351,10 @@ window.initialize3DViewer = function (fileSourcesArray) {
 				
 			  	
 				value.Mesh.material.color.getStyle();
-
+			 
 				const rangeValue = document.createElement('span');
 				rangeValue.className = 'range-value';
-				rangeValue.textContent = Math.floor(value.Opacity * 100) + '%';
+			    rangeValue.textContent = Math.floor(value.Opacity * 100) + '%';
 
 				range.addEventListener("input", (e) => {
 
