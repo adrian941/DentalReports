@@ -1,4 +1,5 @@
 Dental Reports is a Blazor WASM project, it provides a user-friendly cloud platform for uploading and viewing dental patient files or data. 
+
 I implemented Microsoft Authentication for secure login. 
 
 Additionally, I developed a 3D file viewer for enhanced visualization with the JS library: Three.js. 
