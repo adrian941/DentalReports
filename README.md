@@ -1,6 +1,10 @@
 Dental Reports is a Blazor WASM project, it provides a user-friendly cloud platform for uploading and viewing dental patient files or data. 
 
-I implemented Microsoft Authentication for secure login. 
+Facilitates communication between the dental technician and the dentist.
+
+
+- I implemented Microsoft Authentication for secure login. 
+
 
 Additionally, I developed a 3D file viewer for enhanced visualization with the JS library: Three.js. 
 
@@ -13,6 +17,7 @@ Technologies used:
 - Dependency Injection, Entity Framework
 - RESTful API
 - HTML, CSS, Javascript
+- Azure Services (Azure App Service Azure Blob Storage, Azure Microsoft SQL Database)
 
 Role-based API:
 I've created APIs and controllers that handle role-based access. Users only have access to resources corresponding to their roles, thus ensuring security.
